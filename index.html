@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STEM LinkedIn Networking Assistant</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            stem: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    .step-badge {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    }
+    .copy-btn.copied {
+      background-color: #059669;
+      border-color: #059669;
+    }
+    .tab-btn[aria-selected="true"] {
+      border-color: #0284c7;
+      background-color: #f0f9ff;
+      color: #0369a1;
+    }
+    .template-toggle summary {
+      list-style: none;
+      cursor: pointer;
+    }
+    .template-toggle summary::-webkit-details-marker {
+      display: none;
+    }
+    .template-toggle[open] summary .template-toggle-icon {
+      transform: rotate(180deg);
+    }
+    .pillar-card[aria-pressed="true"] {
+      border-color: #0284c7;
+      background-color: #f0f9ff;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+    }
+    .pillar-card[aria-pressed="true"] .pillar-card-title {
+      color: #0369a1;
+    }
+    .sub-tag-pill[aria-pressed="true"] {
+      border-color: #0284c7;
+      background-color: #e0f2fe;
+      color: #0369a1;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-stem-50 to-blue-50 text-slate-800">
+
+  <!-- Header -->
+  <header class="border-b border-slate-200/80 bg-white/80 backdrop-blur-sm">
+    <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+      <div class="flex items-start gap-4">
+        <div class="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-xl step-badge text-white shadow-md">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-stem-900 sm:text-3xl">
+            STEM LinkedIn Networking Assistant
+          </h1>
+          <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
+            Built for Foothill and De Anza community college students exploring
+            <strong class="font-semibold text-slate-700">non-corporate STEM paths</strong>—from science policy to K-12 mentorship.
+            Generate targeted LinkedIn searches and ready-to-send networking messages in minutes.
+          </p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+    <nav class="mb-8 flex gap-2 rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm" aria-label="Main sections">
+      <button
+        type="button"
+        id="tab-btn-assistant"
+        class="tab-btn flex-1 rounded-lg border border-transparent px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1"
+        aria-selected="true"
+        data-tab="assistant"
+      >
+        Networking Assistant
+      </button>
+      <button
+        type="button"
+        id="tab-btn-bookmarks"
+        class="tab-btn flex-1 rounded-lg border border-transparent px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1"
+        aria-selected="false"
+        data-tab="bookmarks"
+      >
+        Bookmarks <span id="tab-bookmark-count" class="ml-1 text-xs font-medium text-stem-700">(0)</span>
+      </button>
+    </nav>
+
+    <div id="tab-assistant" class="tab-panel space-y-8">
+
+    <!-- Step 1 -->
+    <section class="overflow-visible rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step1-heading">
+      <div class="relative z-10 mb-6 flex items-center gap-3 bg-white">
+        <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">1</span>
+        <h2 id="step1-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Preferences &amp; Filters</h2>
+      </div>
+
+      <form id="preferences-form" class="space-y-6">
+        <fieldset>
+          <legend class="mb-1 block text-sm font-medium text-slate-700">Impact Pillars</legend>
+          <p class="mb-3 text-xs text-slate-500">Select one or more fields. Optional sub-tags appear under each selected pillar.</p>
+          <div id="pillar-grid" class="grid gap-3 sm:grid-cols-2"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend class="mb-3 block text-sm font-medium text-slate-700">School Connection</legend>
+          <div class="space-y-3">
+            <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 px-4 py-3 transition hover:border-stem-300 hover:bg-stem-50/50 has-[:checked]:border-stem-500 has-[:checked]:bg-stem-50">
+              <input type="checkbox" name="school" value="Foothill College" class="h-4 w-4 rounded border-slate-300 text-stem-600 focus:ring-stem-500" checked />
+              <span class="text-sm font-medium text-slate-700">Foothill College</span>
+            </label>
+            <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 px-4 py-3 transition hover:border-stem-300 hover:bg-stem-50/50 has-[:checked]:border-stem-500 has-[:checked]:bg-stem-50">
+              <input type="checkbox" name="school" value="De Anza College" class="h-4 w-4 rounded border-slate-300 text-stem-600 focus:ring-stem-500" />
+              <span class="text-sm font-medium text-slate-700">De Anza College</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <button
+          type="submit"
+          class="w-full rounded-lg bg-stem-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2 sm:w-auto"
+        >
+          Generate Search Link
+        </button>
+      </form>
+
+      <p id="form-error" class="mt-4 hidden text-sm text-red-600" role="alert"></p>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step2-heading">
+      <div class="mb-6 flex items-center gap-3">
+        <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">2</span>
+        <h2 id="step2-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">LinkedIn Search Link</h2>
+      </div>
+
+      <div id="search-placeholder" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
+        Complete Step 1 and click <strong>Generate Search Link</strong> to create your personalized LinkedIn people search.
+      </div>
+
+      <div id="search-result" class="hidden space-y-4">
+        <p class="text-sm text-slate-600">
+          Search for professionals in <strong id="result-path" class="text-stem-800"></strong> connected to
+          <strong id="result-schools" class="text-stem-800"></strong>.
+        </p>
+        <a
+          id="linkedin-link"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 rounded-lg bg-[#0A66C2] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#004182] focus:outline-none focus:ring-2 focus:ring-[#0A66C2] focus:ring-offset-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+          Open LinkedIn People Search
+        </a>
+        <div class="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+          <p class="text-sm text-slate-700">
+            Getting <strong>no results</strong>? Try a broader search using only your primary pillar and school.
+          </p>
+          <a
+            id="linkedin-link-broader"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-3 inline-flex items-center gap-2 rounded-lg border border-amber-300 bg-white px-4 py-2.5 text-sm font-semibold text-amber-900 shadow-sm transition hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2"
+          >
+            Broader Search
+          </a>
+          <p class="mt-2 text-xs text-slate-600">
+            Uses <strong id="broader-search-label" class="text-stem-800"></strong> + school only.
+          </p>
+          <p class="mt-2 break-all rounded-lg bg-white/80 px-3 py-2 font-mono text-xs text-slate-500" id="broader-search-url-display"></p>
+        </div>
+        <p class="break-all rounded-lg bg-slate-100 px-3 py-2 font-mono text-xs text-slate-500" id="search-url-display"></p>
+
+        <article id="role-profile" class="rounded-xl border border-stem-200 bg-stem-50/60 p-5">
+          <h3 class="font-semibold text-stem-900">Who to Connect With</h3>
+          <p class="mt-1 text-xs text-slate-500">Typical roles for your selected pillars</p>
+          <p id="role-profile-titles" class="mt-3 text-sm font-medium text-stem-800"></p>
+          <p id="role-profile-description" class="mt-2 text-sm leading-relaxed text-slate-700"></p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Step 3 -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step3-heading">
+      <div class="mb-2 flex items-center gap-3">
+        <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">3</span>
+        <h2 id="step3-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Guided Networking Steps &amp; Templates</h2>
+      </div>
+      <p class="mb-6 ml-11 text-sm text-slate-500">
+        Generate templates after Step 1, then copy and personalize before sending on LinkedIn.
+      </p>
+
+      <div id="templates-placeholder" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
+        Templates will appear here once you generate your search link.
+      </div>
+
+      <div id="templates-content" class="hidden space-y-8">
+
+        <!-- Template 1 -->
+        <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
+          <div class="mb-3 flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <h3 class="font-semibold text-stem-900">Template 1: Connection Request Note</h3>
+              <p class="mt-1 text-xs text-slate-500">
+                LinkedIn limit: 200 characters
+                <span id="char-count" class="ml-1 font-medium text-stem-700"></span>
+              </p>
+            </div>
+            <button
+              type="button"
+              class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-3 py-1.5 text-xs font-semibold text-stem-700 transition hover:bg-stem-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1"
+              data-copy-target="template-connection"
+            >
+              Copy to Clipboard
+            </button>
+          </div>
+          <textarea
+            id="template-connection"
+            readonly
+            rows="3"
+            class="w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-700 focus:outline-none"
+          ></textarea>
+        </article>
+
+        <!-- Template 2 -->
+        <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
+          <div class="mb-3 flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <h3 class="font-semibold text-stem-900">Template 2: Follow-up Message</h3>
+              <p class="mt-1 text-xs text-slate-500">Request a 15–20 minute informational chat</p>
+            </div>
+            <button
+              type="button"
+              class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-3 py-1.5 text-xs font-semibold text-stem-700 transition hover:bg-stem-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1"
+              data-copy-target="template-followup"
+            >
+              Copy to Clipboard
+            </button>
+          </div>
+          <textarea
+            id="template-followup"
+            readonly
+            rows="5"
+            class="w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-700 focus:outline-none"
+          ></textarea>
+        </article>
+
+        <!-- Template 3 -->
+        <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
+          <div class="mb-3 flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <h3 class="font-semibold text-stem-900">Template 3: Informational Interview Questions</h3>
+              <p class="mt-1 text-xs text-slate-500">Five high-yield questions to ask during your chat</p>
+            </div>
+            <button
+              type="button"
+              class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-3 py-1.5 text-xs font-semibold text-stem-700 transition hover:bg-stem-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1"
+              data-copy-target="template-questions"
+            >
+              Copy to Clipboard
+            </button>
+          </div>
+          <div id="template-questions" class="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-700"></div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- Step 4 -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step4-heading">
+      <div class="mb-2 flex items-center gap-3">
+        <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">4</span>
+        <h2 id="step4-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Save &amp; Bookmark Professionals</h2>
+      </div>
+      <p class="mb-6 ml-11 text-sm text-slate-500">
+        After browsing LinkedIn, save people you want to reach out to later. Your Step 3 networking templates are saved with each bookmark.
+      </p>
+
+      <form id="bookmark-form" class="space-y-4 rounded-xl border border-slate-200 bg-slate-50/50 p-5">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="bookmark-name" class="mb-1.5 block text-sm font-medium text-slate-700">Name</label>
+            <input
+              type="text"
+              id="bookmark-name"
+              name="bookmark-name"
+              required
+              placeholder="e.g. Jane Smith"
+              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
+            />
+          </div>
+          <div>
+            <label for="bookmark-title" class="mb-1.5 block text-sm font-medium text-slate-700">Job Title</label>
+            <input
+              type="text"
+              id="bookmark-title"
+              name="bookmark-title"
+              required
+              placeholder="e.g. Education Data Analyst"
+              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
+            />
+          </div>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="bookmark-company" class="mb-1.5 block text-sm font-medium text-slate-700">Organization</label>
+            <input
+              type="text"
+              id="bookmark-company"
+              name="bookmark-company"
+              placeholder="e.g. County Office of Education"
+              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
+            />
+          </div>
+          <div>
+            <label for="bookmark-url" class="mb-1.5 block text-sm font-medium text-slate-700">LinkedIn Profile URL</label>
+            <input
+              type="url"
+              id="bookmark-url"
+              name="bookmark-url"
+              placeholder="https://www.linkedin.com/in/..."
+              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
+            />
+          </div>
+        </div>
+        <div>
+          <label for="bookmark-description" class="mb-1.5 block text-sm font-medium text-slate-700">Job Description</label>
+          <textarea
+            id="bookmark-description"
+            name="bookmark-description"
+            rows="4"
+            placeholder="Paste their headline, About section, or role summary from LinkedIn..."
+            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm leading-relaxed shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
+          ></textarea>
+          <p class="mt-1 text-xs text-slate-500">Leave blank to use the target role description for your selected pillars.</p>
+        </div>
+        <div>
+          <label for="bookmark-notes" class="mb-1.5 block text-sm font-medium text-slate-700">Personal Notes (optional)</label>
+          <input
+            type="text"
+            id="bookmark-notes"
+            name="bookmark-notes"
+            placeholder="e.g. Met at campus event, interested in transfer path"
+            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
+          />
+        </div>
+        <button
+          type="submit"
+          id="bookmark-submit"
+          class="rounded-lg bg-stem-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
+        >
+          Save Bookmark
+        </button>
+        <p id="bookmark-form-message" class="hidden text-sm" role="status"></p>
+      </form>
+    </section>
+
+    </div>
+
+    <div id="tab-bookmarks" class="tab-panel hidden space-y-6">
+      <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="bookmarks-heading">
+        <div class="mb-6 flex items-center justify-between gap-3">
+          <h2 id="bookmarks-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Saved Professionals</h2>
+          <span id="bookmark-count" class="text-xs font-medium text-slate-500">0 saved</span>
+        </div>
+        <p class="mb-6 text-sm text-slate-500">
+          Each bookmark includes the networking templates from when you saved them. Switch to the Networking Assistant tab to add more.
+        </p>
+        <div id="bookmarks-empty" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
+          No bookmarks yet. Use Step 4 on the Networking Assistant tab to save professionals you want to reach out to later.
+        </div>
+        <ul id="bookmarks-list" class="hidden space-y-6"></ul>
+      </section>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white/60 py-6 text-center text-xs text-slate-500">
+    STEM LinkedIn Networking Assistant &mdash; for community college students exploring non-corporate STEM careers.
+  </footer>
+
+  <script>
+    const form = document.getElementById('preferences-form');
+    const formError = document.getElementById('form-error');
+    const searchPlaceholder = document.getElementById('search-placeholder');
+    const searchResult = document.getElementById('search-result');
+    const templatesPlaceholder = document.getElementById('templates-placeholder');
+    const templatesContent = document.getElementById('templates-content');
+    const bookmarkForm = document.getElementById('bookmark-form');
+    const bookmarkFormMessage = document.getElementById('bookmark-form-message');
+    const bookmarksList = document.getElementById('bookmarks-list');
+    const bookmarksEmpty = document.getElementById('bookmarks-empty');
+    const bookmarkCount = document.getElementById('bookmark-count');
+    const tabBookmarkCount = document.getElementById('tab-bookmark-count');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabAssistant = document.getElementById('tab-assistant');
+    const tabBookmarks = document.getElementById('tab-bookmarks');
+
+    var BOOKMARKS_STORAGE_KEY = 'stemNetworkingBookmarks';
+    var currentSearchContext = { pillars: [], subTags: [], searchLabel: '', schools: [] };
+
+    var PILLARS = {
+      education: {
+        label: 'Education & Equity',
+        description: 'Professionals who improve teaching, learning access, and student success through mentorship, data, and equity-focused programs.',
+        titles: ['Education Data Analyst', 'STEM Program Coordinator', 'Academic Advisor', 'Learning Analytics Specialist'],
+        keywords: ['Education', 'Educational Equity', 'STEM education'],
+        subTags: {
+          'higher-ed': { label: 'Higher Ed', keywords: ['Higher Education', 'Higher Ed', 'community college'] },
+          k12: { label: 'K-12', keywords: ['K-12', 'K12', 'primary education'] },
+          mentorship: { label: 'Mentorship', keywords: ['Mentorship', 'STEM mentorship', 'student mentoring'] },
+          data: { label: 'Data', keywords: ['Educational Data Analytics', 'learning analytics', 'institutional research'] }
+        }
+      },
+      policy: {
+        label: 'Policy & Advocacy',
+        description: 'Professionals who connect science to legislation, funding, and public decision-making.',
+        titles: ['Science Policy Analyst', 'Legislative Aide', 'Advocacy Coordinator', 'Research Policy Associate'],
+        keywords: ['Science Policy', 'Policy', 'Advocacy'],
+        subTags: {
+          'science-policy': { label: 'Science Policy', keywords: ['Science Policy', 'research policy'] },
+          legislative: { label: 'Legislative', keywords: ['Legislative', 'legislation', 'government affairs'] },
+          advocacy: { label: 'Advocacy', keywords: ['Advocacy', 'public policy advocacy'] },
+          translation: { label: 'Research Translation', keywords: ['Research Translation', 'science communication', 'policy brief'] }
+        }
+      },
+      environment: {
+        label: 'Environment & Climate',
+        description: 'Professionals who use data and field work to address environmental and climate challenges.',
+        titles: ['Environmental Data Analyst', 'GIS Specialist', 'Conservation Coordinator', 'Climate Resilience Analyst'],
+        keywords: ['Environment', 'Climate', 'Environmental Data'],
+        subTags: {
+          'env-data': { label: 'Environmental Data', keywords: ['Environmental Data', 'environmental monitoring'] },
+          gis: { label: 'GIS', keywords: ['GIS', 'geospatial', 'mapping'] },
+          conservation: { label: 'Conservation', keywords: ['Conservation', 'wildlife', 'natural resources'] },
+          resilience: { label: 'Climate Resilience', keywords: ['Climate Resilience', 'climate adaptation', 'sustainability'] }
+        }
+      },
+      community: {
+        label: 'Community Outreach',
+        description: 'Professionals who bring STEM to neighborhoods, nonprofits, and public engagement programs.',
+        titles: ['Community STEM Coordinator', 'Outreach Specialist', 'Program Manager', 'Science Engagement Lead'],
+        keywords: ['Community Outreach', 'STEM outreach', 'community science'],
+        subTags: {
+          'stem-programs': { label: 'STEM Programs', keywords: ['STEM programs', 'out-of-school time', 'after school STEM'] },
+          'citizen-science': { label: 'Citizen Science', keywords: ['Citizen Science', 'community science'] },
+          'informal-ed': { label: 'Museum/Informal Ed', keywords: ['Informal Education', 'museum education', 'science center'] },
+          youth: { label: 'Youth Engagement', keywords: ['Youth Engagement', 'youth STEM', 'teen programs'] }
+        }
+      },
+      'public-health': {
+        label: 'Public Health',
+        description: 'Professionals who improve community health through data, programs, and equity-focused work.',
+        titles: ['Public Health Analyst', 'Health Data Coordinator', 'Community Health Specialist', 'Epidemiology Assistant'],
+        keywords: ['Public Health', 'Community Health', 'Health equity'],
+        subTags: {
+          'health-data': { label: 'Health Data', keywords: ['Health Data', 'public health informatics', 'health analytics'] },
+          epidemiology: { label: 'Epidemiology', keywords: ['Epidemiology', 'disease surveillance'] },
+          'community-health': { label: 'Community Health', keywords: ['Community Health', 'health outreach'] },
+          equity: { label: 'Health Equity', keywords: ['Health Equity', 'health disparities'] }
+        }
+      }
+    };
+
+    var selectedPillars = new Set();
+    var selectedSubTags = new Set();
+
+    function getSelectedSchools() {
+      return Array.from(document.querySelectorAll('input[name="school"]:checked')).map(function (el) {
+        return el.value;
+      });
+    }
+
+    function renderPillarGrid() {
+      var grid = document.getElementById('pillar-grid');
+      grid.innerHTML = Object.keys(PILLARS).map(function (pillarId) {
+        var pillar = PILLARS[pillarId];
+        var isSelected = selectedPillars.has(pillarId);
+        var subTagPills = Object.keys(pillar.subTags).map(function (tagId) {
+          var tag = pillar.subTags[tagId];
+          var key = pillarId + ':' + tagId;
+          var tagSelected = selectedSubTags.has(key);
+          return (
+            '<button type="button" class="sub-tag-pill rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-stem-300 hover:bg-stem-50 focus:outline-none focus:ring-2 focus:ring-stem-500/20" data-sub-tag="' + key + '" aria-pressed="' + (tagSelected ? 'true' : 'false') + '">' +
+              escapeHtml(tag.label) +
+            '</button>'
+          );
+        }).join('');
+
+        return (
+          '<div class="pillar-item flex flex-col gap-2" data-pillar-item="' + pillarId + '">' +
+            '<button type="button" class="pillar-card w-full rounded-xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition hover:border-stem-300 hover:bg-stem-50/50 focus:outline-none focus:ring-2 focus:ring-stem-500/20" data-pillar="' + pillarId + '" aria-pressed="' + (isSelected ? 'true' : 'false') + '">' +
+              '<span class="pillar-card-title block text-sm font-semibold text-slate-800">' + escapeHtml(pillar.label) + '</span>' +
+              '<span class="mt-1 block text-xs leading-relaxed text-slate-500">' + escapeHtml(pillar.description) + '</span>' +
+            '</button>' +
+            '<div class="pillar-sub-tags flex flex-wrap gap-2 px-1' + (isSelected ? '' : ' hidden') + '" data-sub-tags-for="' + pillarId + '">' +
+              subTagPills +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+    }
+
+    function syncPillarUI() {
+      Object.keys(PILLARS).forEach(function (pillarId) {
+        var isSelected = selectedPillars.has(pillarId);
+        var card = document.querySelector('.pillar-card[data-pillar="' + pillarId + '"]');
+        var subTagsRow = document.querySelector('.pillar-sub-tags[data-sub-tags-for="' + pillarId + '"]');
+
+        if (card) {
+          card.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+        }
+        if (subTagsRow) {
+          subTagsRow.classList.toggle('hidden', !isSelected);
+        }
+      });
+
+      document.querySelectorAll('.sub-tag-pill').forEach(function (pill) {
+        var tagKey = pill.getAttribute('data-sub-tag');
+        pill.setAttribute('aria-pressed', selectedSubTags.has(tagKey) ? 'true' : 'false');
+      });
+    }
+
+    function togglePillar(pillarId) {
+      if (selectedPillars.has(pillarId)) {
+        selectedPillars.delete(pillarId);
+        Array.from(selectedSubTags).forEach(function (key) {
+          if (key.indexOf(pillarId + ':') === 0) selectedSubTags.delete(key);
+        });
+      } else {
+        selectedPillars.add(pillarId);
+      }
+      syncPillarUI();
+    }
+
+    function toggleSubTag(tagKey) {
+      if (selectedSubTags.has(tagKey)) {
+        selectedSubTags.delete(tagKey);
+      } else {
+        selectedSubTags.add(tagKey);
+      }
+      syncPillarUI();
+    }
+
+    function initPillarSelection() {
+      renderPillarGrid();
+
+      document.getElementById('pillar-grid').addEventListener('click', function (e) {
+        var pill = e.target.closest('.sub-tag-pill');
+        if (pill) {
+          toggleSubTag(pill.getAttribute('data-sub-tag'));
+          return;
+        }
+
+        var card = e.target.closest('.pillar-card');
+        if (!card) return;
+        togglePillar(card.getAttribute('data-pillar'));
+      });
+    }
+
+    function getSelectedPillars() {
+      return Array.from(selectedPillars);
+    }
+
+    function getSelectedSubTags() {
+      return Array.from(selectedSubTags);
+    }
+
+    function formatOrClause(terms) {
+      if (terms.length === 0) return '';
+      if (terms.length === 1) return terms[0];
+      return '(' + terms.join(' OR ') + ')';
+    }
+
+    function collectSearchTerms(pillars, subTags) {
+      var terms = [];
+      var seen = {};
+
+      function addTerm(term) {
+        var normalized = term.toLowerCase();
+        if (!seen[normalized]) {
+          seen[normalized] = true;
+          terms.push(term);
+        }
+      }
+
+      pillars.forEach(function (pillarId) {
+        addTerm(PILLARS[pillarId].keywords[0]);
+      });
+
+      subTags.forEach(function (tagKey) {
+        var parts = tagKey.split(':');
+        var pillarId = parts[0];
+        var tagId = parts[1];
+        if (PILLARS[pillarId] && PILLARS[pillarId].subTags[tagId]) {
+          addTerm(PILLARS[pillarId].subTags[tagId].label);
+        }
+      });
+
+      return terms;
+    }
+
+    function buildSearchKeywords(pillars, subTags) {
+      return formatOrClause(collectSearchTerms(pillars, subTags));
+    }
+
+    function formatSelectionLabel(pillars, subTags) {
+      if (pillars.length === 0) return '';
+
+      var pillarLabels = pillars.map(function (id) {
+        return PILLARS[id].label;
+      });
+
+      var subTagLabels = subTags.map(function (key) {
+        var parts = key.split(':');
+        return PILLARS[parts[0]].subTags[parts[1]].label;
+      });
+
+      var label = pillarLabels.join(', ');
+      if (subTagLabels.length > 0) {
+        label += ' (' + subTagLabels.join(', ') + ')';
+      }
+      return label;
+    }
+
+    function formatSchoolList(schools) {
+      if (schools.length === 0) return '';
+      if (schools.length === 1) return schools[0];
+      if (schools.length === 2) return schools[0] + ' and ' + schools[1];
+      return schools.slice(0, -1).join(', ') + ', and ' + schools[schools.length - 1];
+    }
+
+    // LinkedIn ignores a plain ?school= param; use the documented school: keyword operator instead.
+    var SCHOOL_SEARCH_TERMS = {
+      'Foothill College': ['Foothill College', 'Foothill'],
+      'De Anza College': ['De Anza College', 'De Anza']
+    };
+
+    function buildSchoolSearchClause(schools) {
+      var terms = [];
+      schools.forEach(function (school) {
+        var aliases = SCHOOL_SEARCH_TERMS[school] || [school];
+        terms = terms.concat(aliases);
+      });
+      if (terms.length === 1) return 'school:' + terms[0];
+      return 'school:(' + terms.join(' OR ') + ')';
+    }
+
+    function buildLinkedInSearchUrlFromKeywords(keywordString) {
+      var params = new URLSearchParams();
+      params.set('keywords', keywordString);
+      params.set('origin', 'FACETED_SEARCH');
+      return 'https://www.linkedin.com/search/results/people/?' + params.toString();
+    }
+
+    function buildLinkedInSearchUrl(pillars, subTags, schools) {
+      var keywordParts = [];
+      var pillarKeywords = buildSearchKeywords(pillars, subTags);
+      if (pillarKeywords) keywordParts.push(pillarKeywords);
+      keywordParts.push(buildSchoolSearchClause(schools));
+      return buildLinkedInSearchUrlFromKeywords(keywordParts.join(' '));
+    }
+
+    function buildBroaderLinkedInSearchUrl(primaryPillarId, schools) {
+      var pillar = PILLARS[primaryPillarId];
+      if (!pillar || schools.length === 0) return '';
+      var keywordParts = [pillar.keywords[0], buildSchoolSearchClause(schools)];
+      return buildLinkedInSearchUrlFromKeywords(keywordParts.join(' '));
+    }
+
+    function getPrimaryPillarId(pillars) {
+      return pillars.length ? pillars[0] : '';
+    }
+
+    function getCombinedProfile(pillars) {
+      if (pillars.length === 0) {
+        return {
+          titles: ['STEM Professional'],
+          description: 'A professional working in non-corporate STEM fields who can share career insights and advice for community college students.'
+        };
+      }
+
+      var titles = [];
+      var descriptions = [];
+      pillars.forEach(function (pillarId) {
+        var pillar = PILLARS[pillarId];
+        titles = titles.concat(pillar.titles);
+        descriptions.push(pillar.description);
+      });
+
+      return {
+        titles: titles.slice(0, 6),
+        description: descriptions.join(' ')
+      };
+    }
+
+    function updateRoleProfile(pillars) {
+      var profile = getCombinedProfile(pillars);
+      document.getElementById('role-profile-titles').textContent = 'Look for titles like: ' + profile.titles.join(', ');
+      document.getElementById('role-profile-description').textContent = profile.description;
+    }
+
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatSavedDate(isoString) {
+      return new Date(isoString).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    }
+
+    function loadBookmarks() {
+      try {
+        var stored = localStorage.getItem(BOOKMARKS_STORAGE_KEY);
+        return stored ? JSON.parse(stored) : [];
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function saveBookmarks(bookmarks) {
+      localStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify(bookmarks));
+    }
+
+    function switchTab(tabName) {
+      tabButtons.forEach(function (btn) {
+        var isActive = btn.getAttribute('data-tab') === tabName;
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      tabAssistant.classList.toggle('hidden', tabName !== 'assistant');
+      tabBookmarks.classList.toggle('hidden', tabName !== 'bookmarks');
+    }
+
+    tabButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        switchTab(btn.getAttribute('data-tab'));
+      });
+    });
+
+    function getTemplatesForBookmark(name, searchLabel, schools) {
+      var schoolLabel = formatSchoolList(schools.length ? schools : getSelectedSchools());
+      var templatesGenerated = !templatesContent.classList.contains('hidden');
+
+      if (templatesGenerated) {
+        return {
+          connection: document.getElementById('template-connection').value,
+          followup: document.getElementById('template-followup').value.replace('[Name]', name),
+          questions: document.getElementById('template-questions').dataset.plainText || ''
+        };
+      }
+
+      return {
+        connection: buildConnectionNote(searchLabel, schoolLabel),
+        followup: buildFollowUpMessage(searchLabel, schoolLabel).replace('[Name]', name),
+        questions: buildQuestions(searchLabel).map(function (q, i) {
+          return (i + 1) + '. ' + q;
+        }).join('\n\n')
+      };
+    }
+
+    function renderSavedTemplates(templates) {
+      if (!templates) {
+        return '<p class="mt-4 text-sm text-slate-500">No templates were saved with this bookmark.</p>';
+      }
+
+      return (
+        '<details class="template-toggle mt-4 rounded-lg border border-slate-200 bg-slate-50/50">' +
+          '<summary class="flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-stem-900">' +
+            '<span>Saved Networking Templates</span>' +
+            '<svg class="template-toggle-icon h-4 w-4 shrink-0 text-slate-500 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">' +
+              '<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />' +
+            '</svg>' +
+          '</summary>' +
+          '<div class="space-y-4 border-t border-slate-200 px-4 py-4">' +
+            '<article class="rounded-lg border border-slate-200 bg-white p-4">' +
+              '<div class="mb-2 flex items-start justify-between gap-2">' +
+                '<h5 class="text-sm font-semibold text-stem-900">Connection Request Note</h5>' +
+                '<button type="button" class="copy-saved-template shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50" data-template-type="connection">Copy</button>' +
+              '</div>' +
+              '<p class="copy-template-text whitespace-pre-wrap text-sm leading-relaxed text-slate-700">' + escapeHtml(templates.connection) + '</p>' +
+            '</article>' +
+            '<article class="rounded-lg border border-slate-200 bg-white p-4">' +
+              '<div class="mb-2 flex items-start justify-between gap-2">' +
+                '<h5 class="text-sm font-semibold text-stem-900">Follow-up Message</h5>' +
+                '<button type="button" class="copy-saved-template shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50" data-template-type="followup">Copy</button>' +
+              '</div>' +
+              '<p class="copy-template-text whitespace-pre-wrap text-sm leading-relaxed text-slate-700">' + escapeHtml(templates.followup) + '</p>' +
+            '</article>' +
+            '<article class="rounded-lg border border-slate-200 bg-white p-4">' +
+              '<div class="mb-2 flex items-start justify-between gap-2">' +
+                '<h5 class="text-sm font-semibold text-stem-900">Informational Interview Questions</h5>' +
+                '<button type="button" class="copy-saved-template shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50" data-template-type="questions">Copy</button>' +
+              '</div>' +
+              '<p class="copy-template-text whitespace-pre-wrap text-sm leading-relaxed text-slate-700">' + escapeHtml(templates.questions) + '</p>' +
+            '</article>' +
+          '</div>' +
+        '</details>'
+      );
+    }
+
+    function renderBookmarks() {
+      var bookmarks = loadBookmarks();
+      var countLabel = bookmarks.length + (bookmarks.length === 1 ? ' saved' : ' saved');
+      bookmarkCount.textContent = countLabel;
+      tabBookmarkCount.textContent = '(' + bookmarks.length + ')';
+
+      if (bookmarks.length === 0) {
+        bookmarksEmpty.classList.remove('hidden');
+        bookmarksList.classList.add('hidden');
+        bookmarksList.innerHTML = '';
+        return;
+      }
+
+      bookmarksEmpty.classList.add('hidden');
+      bookmarksList.classList.remove('hidden');
+
+      bookmarksList.innerHTML = bookmarks.map(function (bookmark) {
+        var profileLink = bookmark.linkedinUrl
+          ? '<a href="' + escapeHtml(bookmark.linkedinUrl) + '" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-[#0A66C2] hover:underline">View LinkedIn profile</a>'
+          : '';
+        var companyLine = bookmark.company
+          ? '<p class="text-sm text-slate-600">' + escapeHtml(bookmark.company) + '</p>'
+          : '';
+        var notesLine = bookmark.notes
+          ? '<p class="mt-2 text-xs text-slate-500"><span class="font-medium text-slate-600">Notes:</span> ' + escapeHtml(bookmark.notes) + '</p>'
+          : '';
+        var contextLine = (bookmark.searchLabel || bookmark.stemPath)
+          ? '<p class="mt-2 text-xs text-stem-700">Saved while exploring: ' + escapeHtml(bookmark.searchLabel || bookmark.stemPath) + '</p>'
+          : '';
+
+        return (
+          '<li class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm" data-bookmark-id="' + bookmark.id + '">' +
+            '<div class="flex flex-wrap items-start justify-between gap-3">' +
+              '<div class="min-w-0 flex-1">' +
+                '<h4 class="font-semibold text-stem-900">' + escapeHtml(bookmark.name) + '</h4>' +
+                '<p class="mt-1 text-sm font-medium text-slate-700">' + escapeHtml(bookmark.title) + '</p>' +
+                companyLine +
+                profileLink +
+              '</div>' +
+              '<button type="button" class="remove-bookmark shrink-0 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-1" data-bookmark-id="' + bookmark.id + '">Remove</button>' +
+            '</div>' +
+            '<div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">' +
+              '<p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Job Description</p>' +
+              '<p class="mt-2 text-sm leading-relaxed text-slate-700">' + escapeHtml(bookmark.jobDescription) + '</p>' +
+            '</div>' +
+            renderSavedTemplates(bookmark.templates) +
+            contextLine +
+            notesLine +
+            '<p class="mt-3 text-xs text-slate-400">Saved ' + formatSavedDate(bookmark.savedAt) + '</p>' +
+          '</li>'
+        );
+      }).join('');
+    }
+
+    function showBookmarkMessage(text, isError) {
+      bookmarkFormMessage.textContent = text;
+      bookmarkFormMessage.className = 'text-sm ' + (isError ? 'text-red-600' : 'text-emerald-600');
+      bookmarkFormMessage.classList.remove('hidden');
+      setTimeout(function () {
+        bookmarkFormMessage.classList.add('hidden');
+      }, 3000);
+    }
+
+    function buildConnectionNote(searchLabel, schoolLabel) {
+      var note = 'Hi! I\'m a ' + schoolLabel + ' student exploring ' + searchLabel + '. I\'d love to connect and learn from your experience. Thank you!';
+      if (note.length > 200) {
+        note = 'Hi! ' + schoolLabel + ' student interested in ' + searchLabel + '. Would love to connect and learn from your path. Thanks!';
+      }
+      if (note.length > 200) {
+        note = note.slice(0, 197) + '...';
+      }
+      return note;
+    }
+
+    function buildFollowUpMessage(searchLabel, schoolLabel) {
+      return (
+        'Hi [Name], thanks for connecting! I\'m a ' + schoolLabel + ' student exploring careers in ' + searchLabel + '. ' +
+        'Would you be open to a brief 15–20 minute informational chat? I\'d love to learn from your path—and with your permission, ' +
+        'I\'d like to record the conversation for my personal notes only. Thank you for considering!'
+      );
+    }
+
+    function buildQuestions(searchLabel) {
+      return [
+        'How did you first get into ' + searchLabel + ', and what drew you to this non-corporate STEM path?',
+        'What does a typical week look like in your role, and which tasks energize you most?',
+        'Which skills or experiences matter most for someone breaking into this field from community college?',
+        'What surprised you most—positively or negatively—about working in ' + searchLabel + '?',
+        'If you were advising a Foothill or De Anza student today, what one step would you recommend I take next?'
+      ];
+    }
+
+    function updateCharCount(text) {
+      var countEl = document.getElementById('char-count');
+      var len = text.length;
+      var color = len <= 200 ? 'text-emerald-600' : 'text-red-600';
+      countEl.className = 'ml-1 font-medium ' + color;
+      countEl.textContent = '(' + len + '/200)';
+    }
+
+    function generateTemplates(searchLabel, schools) {
+      var schoolLabel = formatSchoolList(schools);
+      var connectionNote = buildConnectionNote(searchLabel, schoolLabel);
+
+      document.getElementById('template-connection').value = connectionNote;
+      updateCharCount(connectionNote);
+
+      document.getElementById('template-followup').value = buildFollowUpMessage(searchLabel, schoolLabel);
+
+      var questions = buildQuestions(searchLabel);
+      var questionsHtml = '<ol class="list-decimal space-y-3 pl-5">';
+      questions.forEach(function (q) {
+        questionsHtml += '<li>' + q + '</li>';
+      });
+      questionsHtml += '</ol>';
+      document.getElementById('template-questions').innerHTML = questionsHtml;
+      document.getElementById('template-questions').dataset.plainText = questions.map(function (q, i) {
+        return (i + 1) + '. ' + q;
+      }).join('\n\n');
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      formError.classList.add('hidden');
+
+      var pillars = getSelectedPillars();
+      var subTags = getSelectedSubTags();
+      var schools = getSelectedSchools();
+
+      if (pillars.length === 0) {
+        formError.textContent = 'Please select at least one impact pillar.';
+        formError.classList.remove('hidden');
+        return;
+      }
+
+      if (schools.length === 0) {
+        formError.textContent = 'Please select at least one school connection.';
+        formError.classList.remove('hidden');
+        return;
+      }
+
+      var searchLabel = formatSelectionLabel(pillars, subTags);
+      var url = buildLinkedInSearchUrl(pillars, subTags, schools);
+      var primaryPillarId = getPrimaryPillarId(pillars);
+      var broaderUrl = buildBroaderLinkedInSearchUrl(primaryPillarId, schools);
+      var schoolLabel = formatSchoolList(schools);
+
+      currentSearchContext = {
+        pillars: pillars.slice(),
+        subTags: subTags.slice(),
+        searchLabel: searchLabel,
+        primaryPillarId: primaryPillarId,
+        schools: schools.slice()
+      };
+
+      document.getElementById('result-path').textContent = searchLabel;
+      document.getElementById('result-schools').textContent = schoolLabel;
+      document.getElementById('linkedin-link').href = url;
+      document.getElementById('search-url-display').textContent = url;
+      document.getElementById('linkedin-link-broader').href = broaderUrl;
+      document.getElementById('broader-search-label').textContent = PILLARS[primaryPillarId].keywords[0];
+      document.getElementById('broader-search-url-display').textContent = broaderUrl;
+
+      updateRoleProfile(pillars);
+
+      searchPlaceholder.classList.add('hidden');
+      searchResult.classList.remove('hidden');
+
+      generateTemplates(searchLabel, schools);
+      templatesPlaceholder.classList.add('hidden');
+      templatesContent.classList.remove('hidden');
+    });
+
+    bookmarkForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var name = document.getElementById('bookmark-name').value.trim();
+      var title = document.getElementById('bookmark-title').value.trim();
+      var company = document.getElementById('bookmark-company').value.trim();
+      var linkedinUrl = document.getElementById('bookmark-url').value.trim();
+      var customDescription = document.getElementById('bookmark-description').value.trim();
+      var notes = document.getElementById('bookmark-notes').value.trim();
+      var pillars = currentSearchContext.pillars.length ? currentSearchContext.pillars : getSelectedPillars();
+      var searchLabel = currentSearchContext.searchLabel || formatSelectionLabel(pillars, getSelectedSubTags());
+      var schools = currentSearchContext.schools.length ? currentSearchContext.schools : getSelectedSchools();
+      var profile = getCombinedProfile(pillars);
+      var jobDescription = customDescription || profile.description;
+
+      if (!name || !title) {
+        showBookmarkMessage('Please enter at least a name and job title.', true);
+        return;
+      }
+
+      if (linkedinUrl && !/^https?:\/\//i.test(linkedinUrl)) {
+        linkedinUrl = 'https://' + linkedinUrl;
+      }
+
+      var bookmarks = loadBookmarks();
+      bookmarks.unshift({
+        id: String(Date.now()),
+        name: name,
+        title: title,
+        company: company,
+        linkedinUrl: linkedinUrl,
+        jobDescription: jobDescription,
+        searchLabel: searchLabel,
+        schools: schools.slice(),
+        notes: notes,
+        templates: getTemplatesForBookmark(name, searchLabel, schools),
+        savedAt: new Date().toISOString()
+      });
+
+      saveBookmarks(bookmarks);
+      renderBookmarks();
+      bookmarkForm.reset();
+      showBookmarkMessage('Professional saved with networking templates. View them in the Bookmarks tab.', false);
+      switchTab('bookmarks');
+    });
+
+    bookmarksList.addEventListener('click', function (e) {
+      var removeButton = e.target.closest('.remove-bookmark');
+      if (removeButton) {
+        var removeId = removeButton.getAttribute('data-bookmark-id');
+        var updatedBookmarks = loadBookmarks().filter(function (bookmark) {
+          return bookmark.id !== removeId;
+        });
+        saveBookmarks(updatedBookmarks);
+        renderBookmarks();
+        return;
+      }
+
+      var copyButton = e.target.closest('.copy-saved-template');
+      if (!copyButton) return;
+
+      var bookmarkItem = copyButton.closest('[data-bookmark-id]');
+      var bookmarkId = bookmarkItem.getAttribute('data-bookmark-id');
+      var templateType = copyButton.getAttribute('data-template-type');
+      var bookmark = loadBookmarks().find(function (item) {
+        return item.id === bookmarkId;
+      });
+
+      if (!bookmark || !bookmark.templates || !bookmark.templates[templateType]) return;
+
+      navigator.clipboard.writeText(bookmark.templates[templateType]).then(function () {
+        var original = copyButton.textContent;
+        copyButton.textContent = 'Copied!';
+        setTimeout(function () {
+          copyButton.textContent = original;
+        }, 2000);
+      }).catch(function () {
+        copyButton.textContent = 'Copy failed';
+        setTimeout(function () {
+          copyButton.textContent = 'Copy';
+        }, 2000);
+      });
+    });
+
+    renderBookmarks();
+    initPillarSelection();
+
+    document.querySelectorAll('.copy-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var targetId = btn.getAttribute('data-copy-target');
+        var target = document.getElementById(targetId);
+        var text = target.tagName === 'TEXTAREA' ? target.value : (target.dataset.plainText || target.innerText);
+
+        try {
+          await navigator.clipboard.writeText(text);
+          var original = btn.textContent;
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = original;
+            btn.classList.remove('copied');
+          }, 2000);
+        } catch (err) {
+          btn.textContent = 'Copy failed';
+          setTimeout(function () {
+            btn.textContent = 'Copy to Clipboard';
+          }, 2000);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
