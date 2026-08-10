@@ -93,6 +93,16 @@
     .playbook-toggle[open] summary .playbook-toggle-icon {
       transform: rotate(180deg);
     }
+    .tab-panel {
+      animation: tabFadeIn 0.2s ease;
+    }
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .quick-step-card {
+      background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+    }
   </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 via-stem-50 to-blue-50 text-slate-800">
@@ -121,34 +131,92 @@
   </header>
 
   <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
-    <nav class="mb-8 flex gap-2 rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm" aria-label="Main sections">
+    <nav class="mb-8 grid grid-cols-2 gap-2 rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm sm:grid-cols-4" aria-label="Main sections">
       <button
         type="button"
-        id="tab-btn-assistant"
-        class="tab-btn flex-1 rounded-lg border border-transparent px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1"
+        id="tab-btn-start"
+        class="tab-btn rounded-lg border border-transparent px-3 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1 sm:text-sm"
         aria-selected="true"
-        data-tab="assistant"
+        data-tab="start"
       >
-        Networking Assistant
+        🏠 Start Here
       </button>
       <button
         type="button"
-        id="tab-btn-bookmarks"
-        class="tab-btn flex-1 rounded-lg border border-transparent px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1"
+        id="tab-btn-search"
+        class="tab-btn rounded-lg border border-transparent px-3 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1 sm:text-sm"
         aria-selected="false"
-        data-tab="bookmarks"
+        data-tab="search"
       >
-        Bookmarks <span id="tab-bookmark-count" class="ml-1 text-xs font-medium text-stem-700">(0)</span>
+        🔍 Search &amp; Connect
+      </button>
+      <button
+        type="button"
+        id="tab-btn-toolkit"
+        class="tab-btn rounded-lg border border-transparent px-3 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1 sm:text-sm"
+        aria-selected="false"
+        data-tab="toolkit"
+      >
+        🧰 Toolkit &amp; Prep
+      </button>
+      <button
+        type="button"
+        id="tab-btn-radar"
+        class="tab-btn rounded-lg border border-transparent px-3 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1 sm:text-sm"
+        aria-selected="false"
+        data-tab="radar"
+      >
+        📌 Saved Radar <span id="tab-bookmark-count" class="ml-0.5 text-xs font-medium text-stem-700">(0)</span>
       </button>
     </nav>
 
-    <div id="tab-assistant" class="tab-panel space-y-8">
+    <!-- Tab 1: Start Here -->
+    <div id="tab-start" class="tab-panel space-y-8">
+      <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10" aria-labelledby="welcome-heading">
+        <h2 id="welcome-heading" class="text-2xl font-bold tracking-tight text-stem-900 sm:text-3xl">
+          Welcome to your STEM Networking Companion
+        </h2>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
+          Built for Foothill and De Anza students exploring non-corporate STEM paths. Find alumni on LinkedIn, send tailored connection notes, and build mentor relationships step by step.
+        </p>
+
+        <div class="mt-8 grid gap-4 sm:grid-cols-3">
+          <article class="quick-step-card rounded-xl border border-stem-200 p-5 shadow-sm">
+            <span class="step-badge inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">1</span>
+            <h3 class="mt-3 text-sm font-semibold text-stem-900">Choose your impact field</h3>
+            <p class="mt-2 text-xs leading-relaxed text-slate-600">Select pillars like Education, Policy, or Public Health that match your interests.</p>
+          </article>
+          <article class="quick-step-card rounded-xl border border-stem-200 p-5 shadow-sm">
+            <span class="step-badge inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">2</span>
+            <h3 class="mt-3 text-sm font-semibold text-stem-900">Search alumni on LinkedIn</h3>
+            <p class="mt-2 text-xs leading-relaxed text-slate-600">Generate a targeted people search filtered by your school and career interests.</p>
+          </article>
+          <article class="quick-step-card rounded-xl border border-stem-200 p-5 shadow-sm">
+            <span class="step-badge inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">3</span>
+            <h3 class="mt-3 text-sm font-semibold text-stem-900">Send tailored connection notes</h3>
+            <p class="mt-2 text-xs leading-relaxed text-slate-600">Copy personalized outreach templates and stash profiles on your radar.</p>
+          </article>
+        </div>
+
+        <button
+          type="button"
+          id="start-search-btn"
+          class="mt-8 inline-flex items-center gap-2 rounded-lg bg-stem-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
+        >
+          Start Searching Now
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+        </button>
+      </section>
+    </div>
+
+    <!-- Tab 2: Search & Connect -->
+    <div id="tab-search" class="tab-panel hidden space-y-8">
 
     <!-- Step 1 -->
     <section class="overflow-visible rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step1-heading">
       <div class="relative z-10 mb-6 flex items-center gap-3 bg-white">
         <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">1</span>
-        <h2 id="step1-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Preferences &amp; Filters</h2>
+        <h2 id="step1-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Preferences &amp; Impact Pillars</h2>
       </div>
 
       <form id="preferences-form" class="space-y-6">
@@ -187,7 +255,7 @@
     <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step2-heading">
       <div class="mb-6 flex items-center gap-3">
         <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">2</span>
-        <h2 id="step2-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">LinkedIn Search Link</h2>
+        <h2 id="step2-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">LinkedIn Search Link &amp; Target Roles</h2>
       </div>
 
       <div id="search-placeholder" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
@@ -268,10 +336,10 @@
     <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step3-heading">
       <div class="mb-2 flex items-center gap-3">
         <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">3</span>
-        <h2 id="step3-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Guided Networking Steps &amp; Templates</h2>
+        <h2 id="step3-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Connection Request Note &amp; Initial Outreach Templates</h2>
       </div>
       <p class="mb-6 ml-11 text-sm text-slate-500">
-        Generate templates after Step 1, then copy and personalize before sending on LinkedIn.
+        Generate your search link in Step 1, then copy and personalize these templates before sending on LinkedIn.
       </p>
 
       <div id="templates-placeholder" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
@@ -348,244 +416,210 @@
         </article>
 
       </div>
-
-      <div id="networking-toolkit" class="mt-8 space-y-6 border-t border-slate-200 pt-8">
-        <div>
-          <h3 class="text-base font-semibold text-stem-900">Networking Toolkit</h3>
-          <p class="mt-1 text-sm text-slate-500">Prepare for chats, follow up with mentors, and practice your opening pitch.</p>
-        </div>
-
-        <!-- 15-Minute Chat Playbook -->
-        <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
-          <h4 class="font-semibold text-stem-900">15-Minute Chat Playbook</h4>
-          <p class="mt-1 text-xs text-slate-500">A simple game plan to stay confident from hello to goodbye.</p>
-          <div class="mt-4 space-y-3">
-            <details class="playbook-toggle rounded-lg border border-slate-200 bg-white">
-              <summary class="flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-stem-900">
-                <span>Min 0–3: Warm Intro &amp; Agenda Setting</span>
-                <svg class="playbook-toggle-icon h-4 w-4 shrink-0 text-slate-500 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-              </summary>
-              <div class="border-t border-slate-200 px-4 py-3 text-sm leading-relaxed text-slate-700">
-                <ul class="list-disc space-y-2 pl-5">
-                  <li>Thank them for their time and briefly introduce yourself (school, major/interests).</li>
-                  <li>Share why you reached out and what you hope to learn in 15 minutes.</li>
-                  <li>Confirm they’re okay with you taking notes for personal use only.</li>
-                </ul>
-              </div>
-            </details>
-            <details class="playbook-toggle rounded-lg border border-slate-200 bg-white">
-              <summary class="flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-stem-900">
-                <span>Min 3–12: Asking Core Questions</span>
-                <svg class="playbook-toggle-icon h-4 w-4 shrink-0 text-slate-500 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-              </summary>
-              <div class="border-t border-slate-200 px-4 py-3 text-sm leading-relaxed text-slate-700">
-                <p class="mb-2">Pick 3–4 questions from Template 3 above. Prioritize:</p>
-                <ul class="list-disc space-y-2 pl-5">
-                  <li>How they got into the field and what drew them to it</li>
-                  <li>What a typical week looks like in their role</li>
-                  <li>Skills or experiences that matter most from community college</li>
-                  <li>One concrete next step they’d recommend for you</li>
-                </ul>
-              </div>
-            </details>
-            <details class="playbook-toggle rounded-lg border border-slate-200 bg-white">
-              <summary class="flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-stem-900">
-                <span>Min 12–15: Wrap Up &amp; Asking “Who else should I speak with?”</span>
-                <svg class="playbook-toggle-icon h-4 w-4 shrink-0 text-slate-500 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-              </summary>
-              <div class="border-t border-slate-200 px-4 py-3 text-sm leading-relaxed text-slate-700">
-                <ul class="list-disc space-y-2 pl-5">
-                  <li>Recap one insight you’re taking away from the conversation.</li>
-                  <li>Ask: “Is there anyone else you think I should speak with to learn more?”</li>
-                  <li>Thank them again and mention you’ll send a brief follow-up within 24 hours.</li>
-                </ul>
-              </div>
-            </details>
-            <details class="playbook-toggle rounded-lg border border-amber-200 bg-amber-50/50">
-              <summary class="flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-amber-900">
-                <span>Emergency Lifesavers (if conversation stalls)</span>
-                <svg class="playbook-toggle-icon h-4 w-4 shrink-0 text-amber-700 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-              </summary>
-              <div class="border-t border-amber-200 px-4 py-3 text-sm leading-relaxed text-slate-700">
-                <ol class="list-decimal space-y-2 pl-5">
-                  <li>“What’s something you wish you had known when you were at my stage?”</li>
-                  <li>“What’s a project or moment in your career that really changed how you think about this work?”</li>
-                  <li>“If you were hiring someone entry-level tomorrow, what would make a candidate stand out?”</li>
-                </ol>
-              </div>
-            </details>
-          </div>
-        </article>
-
-        <!-- Post-Chat Follow-Up Generator -->
-        <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
-          <h4 class="font-semibold text-stem-900">Post-Chat Follow-Up Generator</h4>
-          <p class="mt-1 text-xs text-slate-500">Generate a thank-you note and a 60-day check-in after your informational chat.</p>
-          <div class="mt-4 grid gap-4 sm:grid-cols-2">
-            <div>
-              <label for="followup-contact-name" class="mb-1.5 block text-sm font-medium text-slate-700">Contact Name (optional)</label>
-              <input type="text" id="followup-contact-name" placeholder="e.g. Jane Smith" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
-            </div>
-            <div class="sm:col-span-2">
-              <label for="followup-takeaway" class="mb-1.5 block text-sm font-medium text-slate-700">Key Takeaway / Highlight from your chat</label>
-              <input type="text" id="followup-takeaway" placeholder='e.g. Loved your advice on getting involved in institutional research' class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
-            </div>
-          </div>
-          <button type="button" id="generate-followup-btn" class="mt-4 rounded-lg bg-stem-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
-            Generate Follow-Up Messages
-          </button>
-          <div id="followup-output" class="mt-4 hidden space-y-4">
-            <div class="rounded-lg border border-slate-200 bg-white p-4">
-              <div class="mb-2 flex items-start justify-between gap-2">
-                <h5 class="text-sm font-semibold text-stem-900">24-Hour Thank You (3 sentences)</h5>
-                <button type="button" class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50" data-copy-target="followup-thankyou">Copy</button>
-              </div>
-              <textarea id="followup-thankyou" readonly rows="4" class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-relaxed text-slate-700 focus:outline-none"></textarea>
-            </div>
-            <div class="rounded-lg border border-slate-200 bg-white p-4">
-              <div class="mb-2 flex items-start justify-between gap-2">
-                <h5 class="text-sm font-semibold text-stem-900">60-Day Follow-Up</h5>
-                <button type="button" class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50" data-copy-target="followup-60day">Copy</button>
-              </div>
-              <textarea id="followup-60day" readonly rows="5" class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-relaxed text-slate-700 focus:outline-none"></textarea>
-            </div>
-          </div>
-        </article>
-
-        <!-- 30-Second Elevator Pitch Builder -->
-        <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
-          <h4 class="font-semibold text-stem-900">30-Second Elevator Pitch Builder</h4>
-          <p class="mt-1 text-xs text-slate-500">Practice a confident opening before your coffee chat.</p>
-          <div class="mt-4 space-y-4">
-            <div>
-              <label for="pitch-background" class="mb-1.5 block text-sm font-medium text-slate-700">1. Background</label>
-              <input type="text" id="pitch-background" placeholder="e.g. Data Science student at De Anza" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
-            </div>
-            <div>
-              <label for="pitch-passion" class="mb-1.5 block text-sm font-medium text-slate-700">2. Core Passion</label>
-              <input type="text" id="pitch-passion" placeholder="e.g. educational equity and STEM access" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
-            </div>
-            <div>
-              <label for="pitch-goal" class="mb-1.5 block text-sm font-medium text-slate-700">3. Current Goal</label>
-              <input type="text" id="pitch-goal" placeholder="e.g. exploring how data is used in non-profits" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
-            </div>
-          </div>
-          <button type="button" id="generate-pitch-btn" class="mt-4 rounded-lg bg-stem-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
-            Build My Pitch
-          </button>
-          <div id="pitch-output" class="mt-4 hidden rounded-lg border border-slate-200 bg-white p-4">
-            <div class="mb-2 flex items-start justify-between gap-2">
-              <h5 class="text-sm font-semibold text-stem-900">Your 30-Second Opening</h5>
-              <button type="button" id="copy-pitch-btn" class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50">Copy Pitch</button>
-            </div>
-            <textarea id="pitch-script" readonly rows="5" class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-relaxed text-slate-700 focus:outline-none"></textarea>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- Step 4 -->
-    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step4-heading">
-      <div class="mb-2 flex items-center gap-3">
-        <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">4</span>
-        <h2 id="step4-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Stash Professionals on Your Radar</h2>
-      </div>
-      <p class="mb-6 ml-11 text-sm text-slate-500">
-        Keep track of mentors and alumni you want to reach out to later. Your Step 3 networking templates are saved with each profile you stash.
-      </p>
-
-      <form id="bookmark-form" class="space-y-4 rounded-xl border border-slate-200 bg-slate-50/50 p-5">
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label for="bookmark-name" class="mb-1.5 block text-sm font-medium text-slate-700">Name</label>
-            <input
-              type="text"
-              id="bookmark-name"
-              name="bookmark-name"
-              required
-              placeholder="e.g. Jane Smith"
-              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
-            />
-          </div>
-          <div>
-            <label for="bookmark-title" class="mb-1.5 block text-sm font-medium text-slate-700">Job Title</label>
-            <input
-              type="text"
-              id="bookmark-title"
-              name="bookmark-title"
-              required
-              placeholder="e.g. Education Data Analyst"
-              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
-            />
-          </div>
-        </div>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label for="bookmark-company" class="mb-1.5 block text-sm font-medium text-slate-700">Organization</label>
-            <input
-              type="text"
-              id="bookmark-company"
-              name="bookmark-company"
-              placeholder="e.g. County Office of Education"
-              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
-            />
-          </div>
-          <div>
-            <label for="bookmark-url" class="mb-1.5 block text-sm font-medium text-slate-700">LinkedIn Profile URL</label>
-            <input
-              type="url"
-              id="bookmark-url"
-              name="bookmark-url"
-              placeholder="https://www.linkedin.com/in/..."
-              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
-            />
-          </div>
-        </div>
-        <div>
-          <label for="bookmark-description" class="mb-1.5 block text-sm font-medium text-slate-700">Job Description</label>
-          <textarea
-            id="bookmark-description"
-            name="bookmark-description"
-            rows="4"
-            placeholder="Paste their headline, About section, or role summary from LinkedIn..."
-            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm leading-relaxed shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
-          ></textarea>
-          <p class="mt-1 text-xs text-slate-500">Leave blank to use the target role description for your selected pillars.</p>
-        </div>
-        <div>
-          <label for="bookmark-notes" class="mb-1.5 block text-sm font-medium text-slate-700">Personal Notes (optional)</label>
-          <input
-            type="text"
-            id="bookmark-notes"
-            name="bookmark-notes"
-            placeholder="e.g. Met at campus event, interested in transfer path"
-            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
-          />
-        </div>
-        <button
-          type="submit"
-          id="bookmark-submit"
-          class="rounded-lg bg-stem-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
-        >
-          Stash Profile
-        </button>
-        <p id="bookmark-form-message" class="hidden text-sm" role="status"></p>
-      </form>
     </section>
 
     </div>
 
-    <div id="tab-bookmarks" class="tab-panel hidden space-y-6">
-      <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="bookmarks-heading">
+    <!-- Tab 3: Toolkit & Prep -->
+    <div id="tab-toolkit" class="tab-panel hidden space-y-6">
+      <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="toolkit-heading">
+        <h2 id="toolkit-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Toolkit &amp; Prep</h2>
+        <p class="mt-2 text-sm text-slate-500">Practice your pitch, plan your chat, and follow up with mentors after you connect.</p>
+
+        <div id="networking-toolkit" class="mt-6 space-y-6">
+
+          <!-- 30-Second Elevator Pitch Builder -->
+          <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
+            <h4 class="font-semibold text-stem-900">30-Second Elevator Pitch Builder</h4>
+            <p class="mt-1 text-xs text-slate-500">Practice a confident opening before your coffee chat.</p>
+            <div class="mt-4 space-y-4">
+              <div>
+                <label for="pitch-background" class="mb-1.5 block text-sm font-medium text-slate-700">1. Background</label>
+                <input type="text" id="pitch-background" placeholder="e.g. Data Science student at De Anza" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+              </div>
+              <div>
+                <label for="pitch-passion" class="mb-1.5 block text-sm font-medium text-slate-700">2. Core Passion</label>
+                <input type="text" id="pitch-passion" placeholder="e.g. educational equity and STEM access" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+              </div>
+              <div>
+                <label for="pitch-goal" class="mb-1.5 block text-sm font-medium text-slate-700">3. Current Goal</label>
+                <input type="text" id="pitch-goal" placeholder="e.g. exploring how data is used in non-profits" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+              </div>
+            </div>
+            <button type="button" id="generate-pitch-btn" class="mt-4 rounded-lg bg-stem-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
+              Build My Pitch
+            </button>
+            <div id="pitch-output" class="mt-4 hidden rounded-lg border border-slate-200 bg-white p-4">
+              <div class="mb-2 flex items-start justify-between gap-2">
+                <h5 class="text-sm font-semibold text-stem-900">Your 30-Second Opening</h5>
+                <button type="button" id="copy-pitch-btn" class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50">Copy Pitch</button>
+              </div>
+              <textarea id="pitch-script" readonly rows="5" class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-relaxed text-slate-700 focus:outline-none"></textarea>
+            </div>
+          </article>
+
+          <!-- 15-Minute Coffee Chat Game Plan -->
+          <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
+            <h4 class="font-semibold text-stem-900">15-Minute Coffee Chat Game Plan</h4>
+            <p class="mt-1 text-xs text-slate-500">A simple game plan to stay confident from hello to goodbye.</p>
+            <div class="mt-4 space-y-3">
+              <details class="playbook-toggle rounded-lg border border-slate-200 bg-white">
+                <summary class="flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-stem-900">
+                  <span>Min 0–3: Warm Intro &amp; Agenda Setting</span>
+                  <svg class="playbook-toggle-icon h-4 w-4 shrink-0 text-slate-500 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </summary>
+                <div class="border-t border-slate-200 px-4 py-3 text-sm leading-relaxed text-slate-700">
+                  <ul class="list-disc space-y-2 pl-5">
+                    <li>Thank them for their time and briefly introduce yourself (school, major/interests).</li>
+                    <li>Share why you reached out and what you hope to learn in 15 minutes.</li>
+                    <li>Confirm they’re okay with you taking notes for personal use only.</li>
+                  </ul>
+                </div>
+              </details>
+              <details class="playbook-toggle rounded-lg border border-slate-200 bg-white">
+                <summary class="flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-stem-900">
+                  <span>Min 3–12: Asking Core Questions</span>
+                  <svg class="playbook-toggle-icon h-4 w-4 shrink-0 text-slate-500 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </summary>
+                <div class="border-t border-slate-200 px-4 py-3 text-sm leading-relaxed text-slate-700">
+                  <p class="mb-2">Pick 3–4 questions from the Search &amp; Connect tab. Prioritize:</p>
+                  <ul class="list-disc space-y-2 pl-5">
+                    <li>How they got into the field and what drew them to it</li>
+                    <li>What a typical week looks like in their role</li>
+                    <li>Skills or experiences that matter most from community college</li>
+                    <li>One concrete next step they’d recommend for you</li>
+                  </ul>
+                </div>
+              </details>
+              <details class="playbook-toggle rounded-lg border border-slate-200 bg-white">
+                <summary class="flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-stem-900">
+                  <span>Min 12–15: Wrap Up &amp; Asking “Who else should I speak with?”</span>
+                  <svg class="playbook-toggle-icon h-4 w-4 shrink-0 text-slate-500 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </summary>
+                <div class="border-t border-slate-200 px-4 py-3 text-sm leading-relaxed text-slate-700">
+                  <ul class="list-disc space-y-2 pl-5">
+                    <li>Recap one insight you’re taking away from the conversation.</li>
+                    <li>Ask: “Is there anyone else you think I should speak with to learn more?”</li>
+                    <li>Thank them again and mention you’ll send a brief follow-up within 24 hours.</li>
+                  </ul>
+                </div>
+              </details>
+              <details class="playbook-toggle rounded-lg border border-amber-200 bg-amber-50/50">
+                <summary class="flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-amber-900">
+                  <span>Emergency Lifesavers (if conversation stalls)</span>
+                  <svg class="playbook-toggle-icon h-4 w-4 shrink-0 text-amber-700 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </summary>
+                <div class="border-t border-amber-200 px-4 py-3 text-sm leading-relaxed text-slate-700">
+                  <ol class="list-decimal space-y-2 pl-5">
+                    <li>“What’s something you wish you had known when you were at my stage?”</li>
+                    <li>“What’s a project or moment in your career that really changed how you think about this work?”</li>
+                    <li>“If you were hiring someone entry-level tomorrow, what would make a candidate stand out?”</li>
+                  </ol>
+                </div>
+              </details>
+            </div>
+          </article>
+
+          <!-- Post-Chat Thank You Note Generator -->
+          <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
+            <h4 class="font-semibold text-stem-900">Post-Chat Thank You Note Generator</h4>
+            <p class="mt-1 text-xs text-slate-500">Generate a thank-you note and a 60-day check-in after your informational chat.</p>
+            <div class="mt-4 grid gap-4 sm:grid-cols-2">
+              <div>
+                <label for="followup-contact-name" class="mb-1.5 block text-sm font-medium text-slate-700">Contact Name (optional)</label>
+                <input type="text" id="followup-contact-name" placeholder="e.g. Jane Smith" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+              </div>
+              <div class="sm:col-span-2">
+                <label for="followup-takeaway" class="mb-1.5 block text-sm font-medium text-slate-700">Key Takeaway / Highlight from your chat</label>
+                <input type="text" id="followup-takeaway" placeholder='e.g. Loved your advice on getting involved in institutional research' class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+              </div>
+            </div>
+            <button type="button" id="generate-followup-btn" class="mt-4 rounded-lg bg-stem-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
+              Generate Follow-Up Messages
+            </button>
+            <div id="followup-output" class="mt-4 hidden space-y-4">
+              <div class="rounded-lg border border-slate-200 bg-white p-4">
+                <div class="mb-2 flex items-start justify-between gap-2">
+                  <h5 class="text-sm font-semibold text-stem-900">24-Hour Thank You (3 sentences)</h5>
+                  <button type="button" class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50" data-copy-target="followup-thankyou">Copy</button>
+                </div>
+                <textarea id="followup-thankyou" readonly rows="4" class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-relaxed text-slate-700 focus:outline-none"></textarea>
+              </div>
+              <div class="rounded-lg border border-slate-200 bg-white p-4">
+                <div class="mb-2 flex items-start justify-between gap-2">
+                  <h5 class="text-sm font-semibold text-stem-900">60-Day Follow-Up</h5>
+                  <button type="button" class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50" data-copy-target="followup-60day">Copy</button>
+                </div>
+                <textarea id="followup-60day" readonly rows="5" class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-relaxed text-slate-700 focus:outline-none"></textarea>
+              </div>
+            </div>
+          </article>
+
+          <!-- Coming Soon -->
+          <article class="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 p-5">
+            <h4 class="font-semibold text-slate-700">Coming Soon: LinkedIn Profile Feedback Tool &amp; Question Bank</h4>
+            <p class="mt-2 text-sm text-slate-500">Get tips to polish your LinkedIn profile and browse a curated bank of networking questions tailored to non-corporate STEM paths.</p>
+          </article>
+
+        </div>
+      </section>
+    </div>
+
+    <!-- Tab 4: Saved Radar -->
+    <div id="tab-radar" class="tab-panel hidden space-y-6">
+      <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="radar-form-heading">
+        <h2 id="radar-form-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Stash Professionals on Your Radar</h2>
+        <p class="mt-2 text-sm text-slate-500">
+          Keep track of mentors and alumni you want to reach out to later. Your outreach templates are saved with each profile.
+        </p>
+
+        <form id="bookmark-form" class="mt-6 space-y-4 rounded-xl border border-slate-200 bg-slate-50/50 p-5">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="bookmark-name" class="mb-1.5 block text-sm font-medium text-slate-700">Name</label>
+              <input type="text" id="bookmark-name" name="bookmark-name" required placeholder="e.g. Jane Smith" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+            </div>
+            <div>
+              <label for="bookmark-title" class="mb-1.5 block text-sm font-medium text-slate-700">Job Title</label>
+              <input type="text" id="bookmark-title" name="bookmark-title" required placeholder="e.g. Education Data Analyst" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+            </div>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="bookmark-company" class="mb-1.5 block text-sm font-medium text-slate-700">Organization</label>
+              <input type="text" id="bookmark-company" name="bookmark-company" placeholder="e.g. County Office of Education" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+            </div>
+            <div>
+              <label for="bookmark-url" class="mb-1.5 block text-sm font-medium text-slate-700">LinkedIn Profile URL</label>
+              <input type="url" id="bookmark-url" name="bookmark-url" placeholder="https://www.linkedin.com/in/..." class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+            </div>
+          </div>
+          <div>
+            <label for="bookmark-description" class="mb-1.5 block text-sm font-medium text-slate-700">Job Description</label>
+            <textarea id="bookmark-description" name="bookmark-description" rows="4" placeholder="Paste their headline, About section, or role summary from LinkedIn..." class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm leading-relaxed shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"></textarea>
+            <p class="mt-1 text-xs text-slate-500">Leave blank to use the target role description for your selected pillars.</p>
+          </div>
+          <div>
+            <label for="bookmark-notes" class="mb-1.5 block text-sm font-medium text-slate-700">Personal Notes (optional)</label>
+            <input type="text" id="bookmark-notes" name="bookmark-notes" placeholder="e.g. Met at campus event, interested in transfer path" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+          </div>
+          <button type="submit" id="bookmark-submit" class="rounded-lg bg-stem-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
+            Stash Profile
+          </button>
+          <p id="bookmark-form-message" class="hidden text-sm" role="status"></p>
+        </form>
+      </section>
+
+      <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="radar-list-heading">
         <div class="mb-6 flex items-center justify-between gap-3">
-          <h2 id="bookmarks-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Saved Professionals</h2>
+          <h2 id="radar-list-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Your Outreach Pipeline</h2>
           <span id="bookmark-count" class="text-xs font-medium text-slate-500">0 saved</span>
         </div>
         <p class="mb-6 text-sm text-slate-500">
-          Track your outreach pipeline, review saved templates, and update each contact’s status as you progress.
+          Update each contact’s status as you progress from first outreach to completed chat.
         </p>
         <div id="bookmarks-empty" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
-          No bookmarks yet. Use Step 4 on the Networking Assistant tab to save professionals you want to reach out to later.
+          No profiles stashed yet. Use the form above to add professionals to your radar.
         </div>
         <ul id="bookmarks-list" class="hidden space-y-6"></ul>
       </section>
@@ -613,8 +647,12 @@
     const bookmarkCount = document.getElementById('bookmark-count');
     const tabBookmarkCount = document.getElementById('tab-bookmark-count');
     const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabAssistant = document.getElementById('tab-assistant');
-    const tabBookmarks = document.getElementById('tab-bookmarks');
+    const tabPanels = {
+      start: document.getElementById('tab-start'),
+      search: document.getElementById('tab-search'),
+      toolkit: document.getElementById('tab-toolkit'),
+      radar: document.getElementById('tab-radar')
+    };
 
     var BOOKMARKS_STORAGE_KEY = 'stemNetworkingBookmarks';
     var currentSearchContext = { pillars: [], subTags: [], searchLabel: '', schools: [] };
@@ -968,14 +1006,21 @@
         var isActive = btn.getAttribute('data-tab') === tabName;
         btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
       });
-      tabAssistant.classList.toggle('hidden', tabName !== 'assistant');
-      tabBookmarks.classList.toggle('hidden', tabName !== 'bookmarks');
+      Object.keys(tabPanels).forEach(function (key) {
+        if (tabPanels[key]) {
+          tabPanels[key].classList.toggle('hidden', key !== tabName);
+        }
+      });
     }
 
     tabButtons.forEach(function (btn) {
       btn.addEventListener('click', function () {
         switchTab(btn.getAttribute('data-tab'));
       });
+    });
+
+    document.getElementById('start-search-btn').addEventListener('click', function () {
+      switchTab('search');
     });
 
     function getTemplatesForBookmark(name, searchLabel, schools) {
@@ -1365,7 +1410,7 @@
       renderBookmarks();
       bookmarkForm.reset();
       showToast('Profile stashed on your Radar!');
-      switchTab('bookmarks');
+      switchTab('radar');
     });
 
     bookmarksList.addEventListener('click', function (e) {
