@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STEM LinkedIn Networking Assistant</title>
+  <title>STEM Alumni Networking Toolkit</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -32,10 +32,28 @@
       background-color: #059669;
       border-color: #059669;
     }
+    .tab-nav {
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .tab-btn {
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      border-radius: 0;
+      background: transparent;
+      letter-spacing: 0.01em;
+    }
     .tab-btn[aria-selected="true"] {
-      border-color: #0284c7;
-      background-color: #f0f9ff;
+      border-bottom-color: #0284c7;
+      background-color: transparent;
       color: #0369a1;
+      font-weight: 600;
+    }
+    .tab-btn[aria-selected="false"] {
+      color: #64748b;
+    }
+    .tab-btn[aria-selected="false"]:hover {
+      color: #334155;
+      background-color: #f8fafc;
     }
     .template-toggle summary {
       list-style: none;
@@ -101,119 +119,117 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .quick-step-card {
-      background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+      background: #ffffff;
     }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-50 via-stem-50 to-blue-50 text-slate-800">
+<body class="min-h-screen bg-slate-50 text-slate-800">
 
   <!-- Header -->
-  <header class="border-b border-slate-200/80 bg-white/80 backdrop-blur-sm">
-    <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+  <header class="border-b border-slate-200 bg-white">
+    <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-9">
       <div class="flex items-start gap-4">
-        <div class="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-xl step-badge text-white shadow-md">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <div class="hidden sm:flex h-11 w-11 shrink-0 items-center justify-center rounded-lg step-badge text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </div>
         <div>
-          <h1 class="text-2xl font-bold tracking-tight text-stem-900 sm:text-3xl">
-            STEM LinkedIn Networking Assistant
+          <h1 class="text-2xl font-semibold tracking-tight text-stem-900 sm:text-3xl">
+            STEM Alumni Networking Toolkit
           </h1>
-          <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
-            Built for Foothill and De Anza community college students exploring
-            <strong class="font-semibold text-slate-700">non-corporate STEM paths</strong>—from science policy to K-12 mentorship.
-            Generate targeted LinkedIn searches and ready-to-send networking messages in minutes.
+          <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-[15px]">
+            Finding your path in STEM shouldn't rely on luck. Connect directly with Foothill and De Anza alumni working in education, policy, research, and advocacy.
           </p>
         </div>
       </div>
     </div>
   </header>
 
-  <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
-    <nav class="mb-8 grid grid-cols-2 gap-2 rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm sm:grid-cols-4" aria-label="Main sections">
+  <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-9">
+    <nav class="tab-nav mb-8 flex overflow-x-auto" aria-label="Main sections">
       <button
         type="button"
         id="tab-btn-start"
-        class="tab-btn rounded-lg border border-transparent px-3 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1 sm:text-sm"
+        class="tab-btn shrink-0 px-4 py-3 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-inset sm:px-5"
         aria-selected="true"
         data-tab="start"
       >
-        🏠 Start Here
+        Overview
       </button>
       <button
         type="button"
         id="tab-btn-search"
-        class="tab-btn rounded-lg border border-transparent px-3 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1 sm:text-sm"
+        class="tab-btn shrink-0 px-4 py-3 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-inset sm:px-5"
         aria-selected="false"
         data-tab="search"
       >
-        🔍 Search &amp; Connect
+        Find Alumni
       </button>
       <button
         type="button"
         id="tab-btn-toolkit"
-        class="tab-btn rounded-lg border border-transparent px-3 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1 sm:text-sm"
+        class="tab-btn shrink-0 px-4 py-3 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-inset sm:px-5"
         aria-selected="false"
         data-tab="toolkit"
       >
-        🧰 Toolkit &amp; Prep
+        Prep &amp; Toolkit
       </button>
       <button
         type="button"
         id="tab-btn-radar"
-        class="tab-btn rounded-lg border border-transparent px-3 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-1 sm:text-sm"
+        class="tab-btn shrink-0 px-4 py-3 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-inset sm:px-5"
         aria-selected="false"
         data-tab="radar"
       >
-        📌 Saved Radar <span id="tab-bookmark-count" class="ml-0.5 text-xs font-medium text-stem-700">(0)</span>
+        Saved Profiles <span id="tab-bookmark-count" class="text-stem-700">(0)</span>
       </button>
     </nav>
 
-    <!-- Tab 1: Start Here -->
+    <!-- Tab 1: Overview -->
     <div id="tab-start" class="tab-panel space-y-8">
-      <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10" aria-labelledby="welcome-heading">
-        <h2 id="welcome-heading" class="text-2xl font-bold tracking-tight text-stem-900 sm:text-3xl">
-          Welcome to your STEM Networking Companion
+      <section class="rounded-lg border border-slate-200 bg-white p-6 sm:p-8" aria-labelledby="welcome-heading">
+        <h2 id="welcome-heading" class="text-xl font-semibold tracking-tight text-stem-900 sm:text-2xl">
+          How It Works
         </h2>
-        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
-          Built for Foothill and De Anza students exploring non-corporate STEM paths. Find alumni on LinkedIn, send tailored connection notes, and build mentor relationships step by step.
+        <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
+          Build meaningful mentor connections in three simple steps.
         </p>
 
-        <div class="mt-8 grid gap-4 sm:grid-cols-3">
-          <article class="quick-step-card rounded-xl border border-stem-200 p-5 shadow-sm">
-            <span class="step-badge inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">1</span>
-            <h3 class="mt-3 text-sm font-semibold text-stem-900">Choose your impact field</h3>
-            <p class="mt-2 text-xs leading-relaxed text-slate-600">Select pillars like Education, Policy, or Public Health that match your interests.</p>
+        <div class="mt-8 grid gap-5 sm:grid-cols-3">
+          <article class="quick-step-card rounded-lg border border-slate-200 p-5">
+            <span class="step-badge inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-semibold text-white">1</span>
+            <h3 class="mt-4 text-sm font-semibold text-stem-900">Select Focus Fields</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">Pick broad impact areas like Educational Data, Science Policy, or Community Outreach.</p>
           </article>
-          <article class="quick-step-card rounded-xl border border-stem-200 p-5 shadow-sm">
-            <span class="step-badge inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">2</span>
-            <h3 class="mt-3 text-sm font-semibold text-stem-900">Search alumni on LinkedIn</h3>
-            <p class="mt-2 text-xs leading-relaxed text-slate-600">Generate a targeted people search filtered by your school and career interests.</p>
+          <article class="quick-step-card rounded-lg border border-slate-200 p-5">
+            <span class="step-badge inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-semibold text-white">2</span>
+            <h3 class="mt-4 text-sm font-semibold text-stem-900">Explore Alumni Searches</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">Launch pre-filtered LinkedIn searches showcasing real CC alumni in those roles.</p>
           </article>
-          <article class="quick-step-card rounded-xl border border-stem-200 p-5 shadow-sm">
-            <span class="step-badge inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">3</span>
-            <h3 class="mt-3 text-sm font-semibold text-stem-900">Send tailored connection notes</h3>
-            <p class="mt-2 text-xs leading-relaxed text-slate-600">Copy personalized outreach templates and stash profiles on your radar.</p>
+          <article class="quick-step-card rounded-lg border border-slate-200 p-5">
+            <span class="step-badge inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-semibold text-white">3</span>
+            <h3 class="mt-4 text-sm font-semibold text-stem-900">Reach Out with Confidence</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">Use personalized outreach templates and save mentors to your pipeline.</p>
           </article>
         </div>
 
         <button
           type="button"
           id="start-search-btn"
-          class="mt-8 inline-flex items-center gap-2 rounded-lg bg-stem-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
+          class="mt-8 inline-flex items-center gap-2 rounded-md bg-stem-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-stem-800 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
         >
-          Start Searching Now
+          Launch Search Tool
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
         </button>
       </section>
     </div>
 
-    <!-- Tab 2: Search & Connect -->
+    <!-- Tab 2: Find Alumni -->
     <div id="tab-search" class="tab-panel hidden space-y-8">
 
     <!-- Step 1 -->
-    <section class="overflow-visible rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step1-heading">
+    <section class="overflow-visible rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step1-heading">
       <div class="relative z-10 mb-6 flex items-center gap-3 bg-white">
         <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">1</span>
         <h2 id="step1-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Preferences &amp; Impact Pillars</h2>
@@ -252,7 +268,7 @@
     </section>
 
     <!-- Step 2 -->
-    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step2-heading">
+    <section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step2-heading">
       <div class="mb-6 flex items-center gap-3">
         <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">2</span>
         <h2 id="step2-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">LinkedIn Search Link &amp; Target Roles</h2>
@@ -333,7 +349,7 @@
     </section>
 
     <!-- Step 3 -->
-    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step3-heading">
+    <section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step3-heading">
       <div class="mb-2 flex items-center gap-3">
         <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">3</span>
         <h2 id="step3-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Connection Request Note &amp; Initial Outreach Templates</h2>
@@ -422,9 +438,9 @@
 
     <!-- Tab 3: Toolkit & Prep -->
     <div id="tab-toolkit" class="tab-panel hidden space-y-6">
-      <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="toolkit-heading">
-        <h2 id="toolkit-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Toolkit &amp; Prep</h2>
-        <p class="mt-2 text-sm text-slate-500">Practice your pitch, plan your chat, and follow up with mentors after you connect.</p>
+      <section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="toolkit-heading">
+        <h2 id="toolkit-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Prep &amp; Toolkit</h2>
+        <p class="mt-2 text-sm leading-relaxed text-slate-600">Practice your pitch, plan your conversations, and follow up with mentors after you connect.</p>
 
         <div id="networking-toolkit" class="mt-6 space-y-6">
 
@@ -557,7 +573,7 @@
 
           <!-- Curated Reading & Guides Library -->
           <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-5" aria-labelledby="reading-library-heading">
-            <h4 id="reading-library-heading" class="font-semibold text-stem-900">📚 Curated Reading &amp; Guides</h4>
+            <h4 id="reading-library-heading" class="font-semibold text-stem-900">Curated Reading &amp; Guides</h4>
             <p class="mt-1 text-sm text-slate-500">Hand-picked articles and university guides to help you demystify networking and master informational interviews.</p>
 
             <div class="mt-5 grid gap-4 sm:grid-cols-2">
@@ -623,15 +639,15 @@
       </section>
     </div>
 
-    <!-- Tab 4: Saved Radar -->
+    <!-- Tab 4: Saved Profiles -->
     <div id="tab-radar" class="tab-panel hidden space-y-6">
-      <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="radar-form-heading">
-        <h2 id="radar-form-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Stash Professionals on Your Radar</h2>
-        <p class="mt-2 text-sm text-slate-500">
-          Keep track of mentors and alumni you want to reach out to later. Your outreach templates are saved with each profile.
+      <section class="rounded-lg border border-slate-200 bg-white p-6 sm:p-8" aria-labelledby="radar-form-heading">
+        <h2 id="radar-form-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Save a Profile</h2>
+        <p class="mt-2 text-sm leading-relaxed text-slate-600">
+          Add mentors and alumni to your pipeline. Outreach templates from your search are saved with each profile.
         </p>
 
-        <form id="bookmark-form" class="mt-6 space-y-4 rounded-xl border border-slate-200 bg-slate-50/50 p-5">
+        <form id="bookmark-form" class="mt-6 space-y-4 rounded-lg border border-slate-200 bg-slate-50/50 p-5">
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
               <label for="bookmark-name" class="mb-1.5 block text-sm font-medium text-slate-700">Name</label>
@@ -661,23 +677,23 @@
             <label for="bookmark-notes" class="mb-1.5 block text-sm font-medium text-slate-700">Personal Notes (optional)</label>
             <input type="text" id="bookmark-notes" name="bookmark-notes" placeholder="e.g. Met at campus event, interested in transfer path" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
           </div>
-          <button type="submit" id="bookmark-submit" class="rounded-lg bg-stem-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
-            Stash Profile
+          <button type="submit" id="bookmark-submit" class="rounded-md bg-stem-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-stem-800 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
+            Save Profile
           </button>
           <p id="bookmark-form-message" class="hidden text-sm" role="status"></p>
         </form>
       </section>
 
-      <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="radar-list-heading">
+      <section class="rounded-lg border border-slate-200 bg-white p-6 sm:p-8" aria-labelledby="radar-list-heading">
         <div class="mb-6 flex items-center justify-between gap-3">
           <h2 id="radar-list-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Your Outreach Pipeline</h2>
           <span id="bookmark-count" class="text-xs font-medium text-slate-500">0 saved</span>
         </div>
-        <p class="mb-6 text-sm text-slate-500">
-          Update each contact’s status as you progress from first outreach to completed chat.
+        <p class="mb-6 text-sm leading-relaxed text-slate-600">
+          Update each contact's status as you progress from first outreach to completed conversation.
         </p>
-        <div id="bookmarks-empty" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
-          No profiles stashed yet. Use the form above to add professionals to your radar.
+        <div id="bookmarks-empty" class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
+          No profiles saved yet. Use the form above to add professionals to your pipeline.
         </div>
         <ul id="bookmarks-list" class="hidden space-y-6"></ul>
       </section>
@@ -687,8 +703,8 @@
 
   <div id="toast" class="toast fixed bottom-6 left-1/2 z-50 hidden rounded-lg bg-stem-900 px-5 py-3 text-sm font-medium text-white shadow-lg" role="alert" aria-live="polite"></div>
 
-  <footer class="border-t border-slate-200 bg-white/60 py-6 text-center text-xs text-slate-500">
-    STEM LinkedIn Networking Assistant &mdash; for community college students exploring non-corporate STEM careers.
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
+    STEM Alumni Networking Toolkit &mdash; for Foothill and De Anza community college students.
   </footer>
 
   <script>
@@ -1467,7 +1483,7 @@
       saveBookmarks(bookmarks);
       renderBookmarks();
       bookmarkForm.reset();
-      showToast('Profile stashed on your Radar!');
+      showToast('Profile saved to your pipeline.');
       switchTab('radar');
     });
 
