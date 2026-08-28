@@ -24,6 +24,12 @@
       },
     };
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
   <style>
     .step-badge {
       background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
@@ -121,27 +127,129 @@
     .quick-step-card {
       background: #ffffff;
     }
+    .profile-drawer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .profile-drawer.open {
+      max-height: 1200px;
+    }
+    .profile-status-pill.complete {
+      border-color: #10b981;
+      background-color: #ecfdf5;
+      color: #047857;
+    }
+    .profile-status-pill.incomplete {
+      border-color: #cbd5e1;
+      background-color: #f8fafc;
+      color: #475569;
+    }
+    .resume-dropzone {
+      border: 2px dashed #cbd5e1;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .resume-dropzone.dragover {
+      border-color: #0284c7;
+      background-color: #f0f9ff;
+    }
+    .highlight-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      border-radius: 9999px;
+      border: 1px solid #bae6fd;
+      background-color: #f0f9ff;
+      padding: 0.25rem 0.25rem 0.25rem 0.75rem;
+    }
+    .highlight-tag input {
+      border: none;
+      background: transparent;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #0369a1;
+      min-width: 6rem;
+      max-width: 14rem;
+      outline: none;
+    }
+    .highlight-tag-remove {
+      display: inline-flex;
+      height: 1.25rem;
+      width: 1.25rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      color: #64748b;
+      font-size: 0.875rem;
+      line-height: 1;
+    }
+    .highlight-tag-remove:hover {
+      background-color: #e0f2fe;
+      color: #0369a1;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-800">
 
   <!-- Header -->
   <header class="border-b border-slate-200 bg-white">
-    <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-9">
-      <div class="flex items-start gap-4">
-        <div class="hidden sm:flex h-11 w-11 shrink-0 items-center justify-center rounded-lg step-badge text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+    <div class="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-7">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-start gap-4 min-w-0">
+          <div class="hidden sm:flex h-11 w-11 shrink-0 items-center justify-center rounded-lg step-badge text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-2xl font-semibold tracking-tight text-stem-900 sm:text-3xl">
+              STEM Alumni Networking Toolkit
+            </h1>
+            <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-[15px]">
+              Finding your path in STEM shouldn't rely on luck. Connect directly with Foothill and De Anza alumni working in education, policy, research, and advocacy.
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-2xl font-semibold tracking-tight text-stem-900 sm:text-3xl">
-            STEM Alumni Networking Toolkit
-          </h1>
-          <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-[15px]">
-            Finding your path in STEM shouldn't rely on luck. Connect directly with Foothill and De Anza alumni working in education, policy, research, and advocacy.
-          </p>
+        <button
+          type="button"
+          id="profile-status-pill"
+          class="profile-status-pill incomplete shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
+          aria-expanded="false"
+          aria-controls="profile-drawer"
+        >
+          👤 Set Up Profile
+        </button>
+      </div>
+
+      <div id="profile-drawer" class="profile-drawer mt-4 border-t border-slate-100 pt-4" aria-hidden="true">
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Quick Profile Edit</p>
+        <p class="mt-1 text-sm text-slate-600">Updates here sync with your Overview profile and personalize templates across the app.</p>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <div>
+            <label class="mb-1 block text-xs font-medium text-slate-700">Full Name</label>
+            <input type="text" data-profile-field="fullName" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="Alex Rivera" />
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-slate-700">Current College</label>
+            <select data-profile-field="college" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20">
+              <option value="">Select college</option>
+              <option value="Foothill College">Foothill College</option>
+              <option value="De Anza College">De Anza College</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="mb-1 block text-xs font-medium text-slate-700">Major / Field of Study</label>
+            <input type="text" data-profile-field="major" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="Data Science &amp; Applied Math" />
+          </div>
+          <div class="sm:col-span-2">
+            <label class="mb-1 block text-xs font-medium text-slate-700">Target Career Focus / Passion</label>
+            <input type="text" data-profile-field="passion" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="STEM educational equity, community data analytics" />
+          </div>
         </div>
+        <button type="button" id="profile-drawer-goto" class="mt-3 text-sm font-medium text-stem-700 hover:text-stem-900 hover:underline">
+          Open full profile &amp; resume extractor on Overview →
+        </button>
       </div>
     </div>
   </header>
@@ -188,6 +296,76 @@
 
     <!-- Tab 1: Overview -->
     <div id="tab-start" class="tab-panel space-y-8">
+
+      <!-- Student Profile & Resume Extractor -->
+      <section id="student-profile-section" class="rounded-lg border border-slate-200 bg-white p-6 sm:p-8" aria-labelledby="profile-heading">
+        <h2 id="profile-heading" class="text-xl font-semibold tracking-tight text-stem-900 sm:text-2xl">Your Profile &amp; Background</h2>
+        <p class="mt-2 text-sm leading-relaxed text-slate-600">
+          Save your details once to personalize connection notes, follow-up messages, and your elevator pitch across the app.
+        </p>
+
+        <div class="mt-6 grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="profile-full-name" class="mb-1.5 block text-sm font-medium text-slate-700">Full Name</label>
+            <input type="text" id="profile-full-name" data-profile-field="fullName" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="e.g. Alex Rivera" />
+          </div>
+          <div>
+            <label for="profile-college" class="mb-1.5 block text-sm font-medium text-slate-700">Current College</label>
+            <select id="profile-college" data-profile-field="college" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20">
+              <option value="">Select college</option>
+              <option value="Foothill College">Foothill College</option>
+              <option value="De Anza College">De Anza College</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div id="profile-college-other-wrap" class="hidden sm:col-span-2">
+            <label for="profile-college-other" class="mb-1.5 block text-sm font-medium text-slate-700">College Name</label>
+            <input type="text" id="profile-college-other" data-profile-field="collegeOther" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="Your community college" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="profile-major" class="mb-1.5 block text-sm font-medium text-slate-700">Major / Field of Study</label>
+            <input type="text" id="profile-major" data-profile-field="major" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="e.g. Data Science &amp; Applied Math" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="profile-passion" class="mb-1.5 block text-sm font-medium text-slate-700">Target Career Focus / Passion</label>
+            <input type="text" id="profile-passion" data-profile-field="passion" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="e.g. STEM educational equity, community data analytics" />
+          </div>
+        </div>
+
+        <div class="mt-8 border-t border-slate-200 pt-6">
+          <h3 class="text-sm font-semibold text-stem-900">Resume Extractor</h3>
+          <p class="mt-1 text-xs text-slate-500">Upload a resume or paste text to pull out experience hooks for your outreach.</p>
+
+          <div id="resume-dropzone" class="resume-dropzone mt-4 rounded-lg bg-slate-50 px-5 py-8 text-center">
+            <input type="file" id="resume-file-input" class="hidden" accept=".txt,.pdf,text/plain,application/pdf" />
+            <p class="text-sm font-medium text-slate-700">📄 Upload Resume (.txt, .pdf) or Paste Resume Text</p>
+            <p class="mt-1 text-xs text-slate-500">Drag and drop here, or</p>
+            <button type="button" id="resume-browse-btn" class="mt-3 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">
+              Browse Files
+            </button>
+          </div>
+
+          <details class="mt-4 rounded-lg border border-slate-200 bg-slate-50/50">
+            <summary class="cursor-pointer px-4 py-3 text-sm font-medium text-stem-900">Or paste your resume bio / summary here</summary>
+            <div class="border-t border-slate-200 px-4 py-3">
+              <textarea id="resume-paste" data-profile-field="resumeText" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm leading-relaxed focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" rows="5" placeholder="Paste resume summary, experience bullets, or bio..."></textarea>
+              <button type="button" id="extract-highlights-btn" class="mt-3 rounded-md bg-stem-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-stem-800">
+                Extract Key Highlights
+              </button>
+            </div>
+          </details>
+
+          <div class="mt-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Resume Highlights</p>
+              <button type="button" id="add-highlight-btn" class="text-xs font-semibold text-stem-700 hover:text-stem-900">+ Add highlight</button>
+            </div>
+            <div id="resume-highlights" class="mt-2 flex flex-wrap gap-2"></div>
+            <p id="resume-highlights-empty" class="mt-2 text-xs text-slate-500">Upload or paste a resume to generate editable highlight tags.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="rounded-lg border border-slate-200 bg-white p-6 sm:p-8" aria-labelledby="welcome-heading">
         <h2 id="welcome-heading" class="text-xl font-semibold tracking-tight text-stem-900 sm:text-2xl">
           How It Works
@@ -729,7 +907,17 @@
     };
 
     var BOOKMARKS_STORAGE_KEY = 'stemNetworkingBookmarks';
+    var STUDENT_PROFILE_STORAGE_KEY = 'stemStudentProfile';
     var currentSearchContext = { pillars: [], subTags: [], searchLabel: '', schools: [] };
+    var studentProfile = {
+      fullName: '',
+      college: '',
+      collegeOther: '',
+      major: '',
+      passion: '',
+      resumeText: '',
+      highlights: []
+    };
 
     var OUTREACH_STATUSES = [
       { value: 'not-contacted', label: 'Not Contacted' },
@@ -1075,6 +1263,412 @@
       localStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify(bookmarks));
     }
 
+    function loadStudentProfile() {
+      try {
+        var stored = localStorage.getItem(STUDENT_PROFILE_STORAGE_KEY);
+        if (stored) {
+          var parsed = JSON.parse(stored);
+          studentProfile = {
+            fullName: parsed.fullName || '',
+            college: parsed.college || '',
+            collegeOther: parsed.collegeOther || '',
+            major: parsed.major || '',
+            passion: parsed.passion || '',
+            resumeText: parsed.resumeText || '',
+            highlights: Array.isArray(parsed.highlights) ? parsed.highlights : []
+          };
+        }
+      } catch (err) {
+        studentProfile = { fullName: '', college: '', collegeOther: '', major: '', passion: '', resumeText: '', highlights: [] };
+      }
+    }
+
+    function saveStudentProfile() {
+      localStorage.setItem(STUDENT_PROFILE_STORAGE_KEY, JSON.stringify(studentProfile));
+    }
+
+    function getCollegeLabel() {
+      if (studentProfile.college === 'Other') {
+        return studentProfile.collegeOther || 'community college';
+      }
+      return studentProfile.college || '';
+    }
+
+    function getCollegeShort() {
+      var college = getCollegeLabel();
+      if (college.indexOf('Foothill') !== -1) return 'Foothill';
+      if (college.indexOf('De Anza') !== -1) return 'De Anza';
+      return college.split(' ')[0] || college;
+    }
+
+    function getStudentIntro() {
+      var firstName = studentProfile.fullName ? studentProfile.fullName.trim().split(/\s+/)[0] : '';
+      var college = getCollegeLabel();
+      var collegeShort = getCollegeShort();
+      var major = studentProfile.major || '';
+      var passion = studentProfile.passion || 'non-corporate STEM paths';
+      var highlight = studentProfile.highlights.length ? studentProfile.highlights[0] : '';
+      var pitchBackground = firstName && major && collegeShort
+        ? firstName + ', a ' + major + ' student at ' + college
+        : (major ? 'a ' + major + ' student at ' + (college || 'community college') : 'a community college student exploring STEM careers');
+      var pitchGoal = passion || 'learning how professionals like you built their path';
+
+      return {
+        firstName: firstName,
+        college: college,
+        collegeShort: collegeShort,
+        major: major,
+        passion: passion,
+        highlight: highlight,
+        highlights: studentProfile.highlights.slice(),
+        pitchBackground: pitchBackground,
+        pitchGoal: pitchGoal
+      };
+    }
+
+    function simplifySearchLabel(searchLabel) {
+      if (!searchLabel) return 'this field';
+      return searchLabel.split('(')[0].split(',')[0].trim().toLowerCase();
+    }
+
+    function isProfileComplete() {
+      var collegeOk = studentProfile.college && (studentProfile.college !== 'Other' || studentProfile.collegeOther.trim());
+      return !!(studentProfile.fullName.trim() && collegeOk && studentProfile.major.trim() && studentProfile.passion.trim());
+    }
+
+    function updateProfileStatusPill() {
+      var pill = document.getElementById('profile-status-pill');
+      if (!pill) return;
+
+      if (isProfileComplete()) {
+        pill.textContent = '👤 Profile: Complete ✓';
+        pill.classList.remove('incomplete');
+        pill.classList.add('complete');
+      } else {
+        pill.textContent = '👤 Set Up Profile';
+        pill.classList.remove('complete');
+        pill.classList.add('incomplete');
+      }
+    }
+
+    function toggleCollegeOtherVisibility() {
+      var wrap = document.getElementById('profile-college-other-wrap');
+      if (!wrap) return;
+      wrap.classList.toggle('hidden', studentProfile.college !== 'Other');
+    }
+
+    function syncProfileFieldsToUI() {
+      document.querySelectorAll('.profile-sync-field').forEach(function (field) {
+        var key = field.getAttribute('data-profile-field');
+        if (!key) return;
+        if (key === 'highlights') return;
+        field.value = studentProfile[key] || '';
+      });
+      toggleCollegeOtherVisibility();
+      updateProfileStatusPill();
+      syncPitchFieldsFromProfile(false);
+    }
+
+    function readProfileFromField(field) {
+      var key = field.getAttribute('data-profile-field');
+      if (!key || key === 'highlights') return;
+      studentProfile[key] = field.value;
+    }
+
+    function onProfileFieldChange(field) {
+      readProfileFromField(field);
+      if (field.getAttribute('data-profile-field') === 'college') {
+        toggleCollegeOtherVisibility();
+        syncSchoolCheckboxesFromProfile();
+      }
+      saveStudentProfile();
+      syncProfileFieldsToUI();
+      refreshPersonalizedTemplates();
+    }
+
+    function syncSchoolCheckboxesFromProfile() {
+      var college = studentProfile.college;
+      if (college !== 'Foothill College' && college !== 'De Anza College') return;
+      document.querySelectorAll('input[name="school"]').forEach(function (checkbox) {
+        checkbox.checked = checkbox.value === college;
+      });
+    }
+
+    function renderHighlightTags() {
+      var container = document.getElementById('resume-highlights');
+      var empty = document.getElementById('resume-highlights-empty');
+      if (!container || !empty) return;
+
+      if (!studentProfile.highlights.length) {
+        container.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+      container.innerHTML = studentProfile.highlights.map(function (highlight, index) {
+        return (
+          '<span class="highlight-tag" data-highlight-index="' + index + '">' +
+            '<input type="text" class="highlight-tag-input" value="' + escapeHtml(highlight) + '" aria-label="Resume highlight ' + (index + 1) + '" />' +
+            '<button type="button" class="highlight-tag-remove" data-remove-highlight="' + index + '" aria-label="Remove highlight">&times;</button>' +
+          '</span>'
+        );
+      }).join('');
+    }
+
+    function setHighlights(highlights) {
+      studentProfile.highlights = highlights.filter(function (item, index, arr) {
+        return item && arr.indexOf(item) === index;
+      }).slice(0, 5);
+      saveStudentProfile();
+      renderHighlightTags();
+      refreshPersonalizedTemplates();
+    }
+
+    function extractResumeHighlights(text) {
+      if (!text || !text.trim()) return [];
+
+      var highlights = [];
+      var seen = {};
+      var lines = text.split(/\n+/).map(function (line) {
+        return line.replace(/^[-•*]\s*/, '').replace(/\s+/g, ' ').trim();
+      }).filter(function (line) {
+        return line.length > 12;
+      });
+
+      var actionPattern = /\b(led|managed|developed|researched|president|captain|intern|volunteer|tutor|built|designed|analyzed|co-founded|organized|mentored|created|implemented|facilitated)\b/i;
+      lines.forEach(function (line) {
+        if (line.length <= 120 && actionPattern.test(line)) {
+          var snippet = line.length > 90 ? line.slice(0, 87) + '...' : line;
+          var key = snippet.toLowerCase();
+          if (!seen[key]) {
+            seen[key] = true;
+            highlights.push(snippet);
+          }
+        }
+      });
+
+      var toolPattern = /\b(Python|R|SQL|Java|JavaScript|TypeScript|Excel|MATLAB|Tableau|GIS|TensorFlow|Pandas|NumPy|JavaScript|React|Git)\b/gi;
+      var tools = [];
+      var match;
+      while ((match = toolPattern.exec(text)) !== null && tools.length < 4) {
+        var tool = match[0];
+        if (tools.map(function (t) { return t.toLowerCase(); }).indexOf(tool.toLowerCase()) === -1) {
+          tools.push(tool);
+        }
+      }
+      if (tools.length) {
+        highlights.push('Tools: ' + tools.join(', '));
+      }
+
+      var leadershipPattern = /\b(STEM Club|student government|peer mentor|research assistant|teaching assistant|club officer|ASUC|Phi Theta Kappa)\b/i;
+      lines.forEach(function (line) {
+        if (leadershipPattern.test(line) && highlights.length < 3) {
+          var snippet = line.length > 90 ? line.slice(0, 87) + '...' : line;
+          var key = snippet.toLowerCase();
+          if (!seen[key]) {
+            seen[key] = true;
+            highlights.push(snippet);
+          }
+        }
+      });
+
+      return highlights.slice(0, 3);
+    }
+
+    function extractTextFromPdf(file) {
+      return file.arrayBuffer().then(function (buffer) {
+        if (!window.pdfjsLib) {
+          throw new Error('PDF support unavailable');
+        }
+        return pdfjsLib.getDocument({ data: buffer }).promise;
+      }).then(function (pdf) {
+        var pages = [];
+        var chain = Promise.resolve();
+        for (var i = 1; i <= pdf.numPages; i++) {
+          (function (pageNumber) {
+            chain = chain.then(function () {
+              return pdf.getPage(pageNumber).then(function (page) {
+                return page.getTextContent();
+              }).then(function (content) {
+                pages.push(content.items.map(function (item) { return item.str; }).join(' '));
+              });
+            });
+          })(i);
+        }
+        return chain.then(function () {
+          return pages.join('\n');
+        });
+      });
+    }
+
+    function extractTextFromFile(file) {
+      var name = file.name.toLowerCase();
+      if (name.endsWith('.txt') || file.type === 'text/plain') {
+        return file.text();
+      }
+      if (name.endsWith('.pdf') || file.type === 'application/pdf') {
+        return extractTextFromPdf(file);
+      }
+      return Promise.reject(new Error('Unsupported file type'));
+    }
+
+    function processResumeText(text) {
+      studentProfile.resumeText = text;
+      var extracted = extractResumeHighlights(text);
+      if (extracted.length) {
+        studentProfile.highlights = extracted;
+      }
+      saveStudentProfile();
+      syncProfileFieldsToUI();
+      refreshPersonalizedTemplates();
+      showToast(extracted.length ? 'Extracted ' + extracted.length + ' resume highlights.' : 'Resume saved. Add highlights manually if needed.');
+    }
+
+    function syncPitchFieldsFromProfile(updateOutput) {
+      var intro = getStudentIntro();
+      var backgroundField = document.getElementById('pitch-background');
+      var passionField = document.getElementById('pitch-passion');
+      var goalField = document.getElementById('pitch-goal');
+
+      if (backgroundField && intro.pitchBackground) backgroundField.value = intro.pitchBackground;
+      if (passionField && intro.passion) passionField.value = intro.passion;
+      if (goalField && intro.pitchGoal) goalField.value = intro.pitchGoal;
+
+      if (updateOutput !== false) {
+        var pitchOutput = document.getElementById('pitch-output');
+        if (pitchOutput && !pitchOutput.classList.contains('hidden')) {
+          document.getElementById('pitch-script').value = buildElevatorPitch(
+            backgroundField ? backgroundField.value.trim() : '',
+            passionField ? passionField.value.trim() : '',
+            goalField ? goalField.value.trim() : ''
+          );
+        }
+      }
+    }
+
+    function refreshPersonalizedTemplates() {
+      syncPitchFieldsFromProfile(true);
+
+      if (currentSearchContext.searchLabel && !templatesContent.classList.contains('hidden')) {
+        generateTemplates(
+          currentSearchContext.searchLabel,
+          currentSearchContext.schools.length ? currentSearchContext.schools : getSelectedSchools()
+        );
+      }
+    }
+
+    function toggleProfileDrawer(forceOpen) {
+      var drawer = document.getElementById('profile-drawer');
+      var pill = document.getElementById('profile-status-pill');
+      if (!drawer || !pill) return;
+
+      var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !drawer.classList.contains('open');
+      drawer.classList.toggle('open', shouldOpen);
+      drawer.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+      pill.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+    }
+
+    function openProfileSection() {
+      switchTab('start');
+      toggleProfileDrawer(false);
+      var section = document.getElementById('student-profile-section');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function initStudentProfile() {
+      loadStudentProfile();
+      syncProfileFieldsToUI();
+      renderHighlightTags();
+      syncSchoolCheckboxesFromProfile();
+
+      document.querySelectorAll('.profile-sync-field').forEach(function (field) {
+        field.addEventListener('input', function () {
+          onProfileFieldChange(field);
+        });
+        field.addEventListener('change', function () {
+          onProfileFieldChange(field);
+        });
+      });
+
+      document.getElementById('profile-status-pill').addEventListener('click', function () {
+        if (isProfileComplete()) {
+          openProfileSection();
+        } else {
+          toggleProfileDrawer();
+        }
+      });
+
+      document.getElementById('profile-drawer-goto').addEventListener('click', openProfileSection);
+
+      document.getElementById('resume-browse-btn').addEventListener('click', function () {
+        document.getElementById('resume-file-input').click();
+      });
+
+      document.getElementById('resume-file-input').addEventListener('change', function (e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        extractTextFromFile(file).then(processResumeText).catch(function () {
+          showToast('Could not read that file. Try .txt or paste your resume instead.');
+        });
+        e.target.value = '';
+      });
+
+      var dropzone = document.getElementById('resume-dropzone');
+      dropzone.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+      dropzone.addEventListener('dragleave', function () {
+        dropzone.classList.remove('dragover');
+      });
+      dropzone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        var file = e.dataTransfer.files[0];
+        if (!file) return;
+        extractTextFromFile(file).then(processResumeText).catch(function () {
+          showToast('Could not read that file. Try .txt or paste your resume instead.');
+        });
+      });
+
+      document.getElementById('extract-highlights-btn').addEventListener('click', function () {
+        var text = document.getElementById('resume-paste').value.trim();
+        if (!text) {
+          showToast('Paste resume text first.');
+          return;
+        }
+        processResumeText(text);
+      });
+
+      document.getElementById('add-highlight-btn').addEventListener('click', function () {
+        var next = studentProfile.highlights.concat(['New highlight']);
+        setHighlights(next);
+      });
+
+      document.getElementById('resume-highlights').addEventListener('input', function (e) {
+        var input = e.target.closest('.highlight-tag-input');
+        if (!input) return;
+        var tag = input.closest('[data-highlight-index]');
+        var index = Number(tag.getAttribute('data-highlight-index'));
+        studentProfile.highlights[index] = input.value;
+        saveStudentProfile();
+        refreshPersonalizedTemplates();
+      });
+
+      document.getElementById('resume-highlights').addEventListener('click', function (e) {
+        var removeBtn = e.target.closest('[data-remove-highlight]');
+        if (!removeBtn) return;
+        var index = Number(removeBtn.getAttribute('data-remove-highlight'));
+        studentProfile.highlights.splice(index, 1);
+        saveStudentProfile();
+        renderHighlightTags();
+        refreshPersonalizedTemplates();
+      });
+    }
+
     function switchTab(tabName) {
       tabButtons.forEach(function (btn) {
         var isActive = btn.getAttribute('data-tab') === tabName;
@@ -1191,13 +1785,15 @@
     }
 
     function buildElevatorPitch(background, passion, goal) {
-      var bg = background || 'a community college student exploring STEM careers';
-      var corePassion = passion || 'making STEM more accessible';
-      var currentGoal = goal || 'learning how professionals like you built their path';
+      var intro = getStudentIntro();
+      var bg = background || intro.pitchBackground;
+      var corePassion = passion || intro.passion || 'making STEM more accessible';
+      var currentGoal = goal || intro.pitchGoal;
+      var highlightLine = intro.highlight ? ' Recently, I\'ve been building skills in ' + intro.highlight + '.' : '';
 
       return (
-        'Hi, thanks so much for meeting with me. I\'m ' + bg + '. ' +
-        'I\'m especially passionate about ' + corePassion + ', and right now I\'m focused on ' + currentGoal + '. ' +
+        'Hi, thanks so much for meeting with me. I\'m ' + bg + '.' + highlightLine +
+        ' I\'m especially passionate about ' + corePassion + ', and right now I\'m focused on ' + currentGoal + '. ' +
         'I\'d love to hear how you got started in your role and any advice you have for someone at my stage.'
       );
     }
@@ -1326,9 +1922,19 @@
     }
 
     function buildConnectionNote(searchLabel, schoolLabel) {
-      var note = 'Hi! I\'m a ' + schoolLabel + ' student exploring ' + searchLabel + '. I\'d love to connect and learn from your experience. Thank you!';
+      var intro = getStudentIntro();
+      var fieldPhrase = simplifySearchLabel(searchLabel);
+      var note;
+
+      if (intro.firstName && intro.major && intro.collegeShort) {
+        note = 'Hi [Name], I\'m ' + intro.firstName + ', a ' + intro.major + ' student at ' + intro.collegeShort + ' focused on ' + intro.passion + '. ';
+        note += 'As a fellow CC alum working in ' + fieldPhrase + ', I\'d love to connect and follow your work!';
+      } else {
+        note = 'Hi [Name], I\'m a ' + schoolLabel + ' student exploring ' + searchLabel + '. I\'d love to connect and learn from your experience. Thank you!';
+      }
+
       if (note.length > 200) {
-        note = 'Hi! ' + schoolLabel + ' student interested in ' + searchLabel + '. Would love to connect and learn from your path. Thanks!';
+        note = 'Hi [Name], I\'m ' + (intro.firstName || 'a') + ', a ' + (intro.major || 'STEM') + ' student at ' + (intro.collegeShort || schoolLabel) + ' exploring ' + fieldPhrase + '. Would love to connect!';
       }
       if (note.length > 200) {
         note = note.slice(0, 197) + '...';
@@ -1337,9 +1943,19 @@
     }
 
     function buildFollowUpMessage(searchLabel, schoolLabel) {
+      var intro = getStudentIntro();
+      var fieldPhrase = simplifySearchLabel(searchLabel);
+      var opener = intro.firstName && intro.major
+        ? 'Hi [Name], thanks for connecting! I\'m ' + intro.firstName + ', a ' + intro.major + ' student at ' + (intro.collegeShort || schoolLabel) + ' focused on ' + intro.passion + '. '
+        : 'Hi [Name], thanks for connecting! I\'m a ' + schoolLabel + ' student exploring careers in ' + searchLabel + '. ';
+
+      if (intro.highlight) {
+        opener = 'Hi [Name], thanks for connecting! I\'m ' + intro.firstName + ', a ' + intro.major + ' student at ' + (intro.collegeShort || schoolLabel) + ' with a background in ' + intro.highlight + '. ';
+      }
+
       return (
-        'Hi [Name], thanks for connecting! I\'m a ' + schoolLabel + ' student exploring careers in ' + searchLabel + '. ' +
-        'Would you be open to a brief 15–20 minute informational chat? I\'d love to learn from your path—and with your permission, ' +
+        opener +
+        'Would you be open to a brief 15–20 minute informational chat about your path in ' + fieldPhrase + '? I\'d love to learn from your experience—and with your permission, ' +
         'I\'d like to record the conversation for my personal notes only. Thank you for considering!'
       );
     }
@@ -1556,6 +2172,7 @@
 
     renderBookmarks();
     initPillarSelection();
+    initStudentProfile();
 
     document.getElementById('search-result').addEventListener('click', function (e) {
       var copyBtn = e.target.closest('.copy-link-btn');
