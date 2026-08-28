@@ -533,7 +533,7 @@
         <h2 id="step4-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Tailored Outreach Notes &amp; Coffee Chat Templates</h2>
       </div>
       <p class="mb-6 ml-11 text-sm text-slate-500">
-        Copy these personalized templates after stashing a profile in Step 3.
+        Edit directly in the boxes below, then copy your personalized outreach notes.
       </p>
 
       <div id="templates-placeholder" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
@@ -562,9 +562,9 @@
           </div>
           <textarea
             id="template-connection"
-            readonly
-            rows="3"
-            class="w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-700 focus:outline-none"
+            spellcheck="true"
+            rows="4"
+            class="w-full resize-y rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-700 focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
           ></textarea>
         </article>
 
@@ -585,9 +585,9 @@
           </div>
           <textarea
             id="template-followup"
-            readonly
-            rows="5"
-            class="w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-700 focus:outline-none"
+            spellcheck="true"
+            rows="6"
+            class="w-full resize-y rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-700 focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
           ></textarea>
         </article>
 
@@ -606,7 +606,12 @@
               Copy to Clipboard
             </button>
           </div>
-          <div id="template-questions" class="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-700"></div>
+          <textarea
+            id="template-questions"
+            spellcheck="true"
+            rows="8"
+            class="w-full resize-y rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-700 focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
+          ></textarea>
         </article>
 
       </div>
@@ -625,30 +630,13 @@
           <!-- 30-Second Elevator Pitch Builder -->
           <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
             <h4 class="font-semibold text-stem-900">30-Second Elevator Pitch Builder</h4>
-            <p class="mt-1 text-xs text-slate-500">Auto-filled from your profile. Tweak any field and click Update Pitch.</p>
-            <div class="mt-4 space-y-4">
-              <div>
-                <label for="pitch-background" class="mb-1.5 block text-sm font-medium text-slate-700">1. Your Name</label>
-                <input type="text" id="pitch-background" placeholder="e.g. Alex" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
-              </div>
-              <div>
-                <label for="pitch-passion" class="mb-1.5 block text-sm font-medium text-slate-700">2. Core Passion</label>
-                <input type="text" id="pitch-passion" placeholder="e.g. educational equity and STEM access" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
-              </div>
-              <div>
-                <label for="pitch-goal" class="mb-1.5 block text-sm font-medium text-slate-700">3. Field / Goal</label>
-                <input type="text" id="pitch-goal" placeholder="e.g. educational data and science policy" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
-              </div>
-            </div>
-            <button type="button" id="generate-pitch-btn" class="mt-4 rounded-lg bg-stem-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
-              Update Pitch
-            </button>
-            <div id="pitch-output" class="mt-4 hidden rounded-lg border border-slate-200 bg-white p-4">
+            <p class="mt-1 text-xs text-slate-500">Auto-generated from your profile. Click anywhere in the text to tweak your script before practicing.</p>
+            <div id="pitch-output" class="mt-4 rounded-lg border border-slate-200 bg-white p-4">
               <div class="mb-2 flex items-start justify-between gap-2">
                 <h5 class="text-sm font-semibold text-stem-900">Your 30-Second Opening</h5>
                 <button type="button" id="copy-pitch-btn" class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50" data-copy-target="pitch-script">Copy Pitch</button>
               </div>
-              <textarea id="pitch-script" readonly rows="5" class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-relaxed text-slate-700 focus:outline-none"></textarea>
+              <textarea id="pitch-script" spellcheck="true" rows="5" class="w-full resize-y rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm leading-relaxed text-slate-700 focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"></textarea>
             </div>
           </article>
 
@@ -718,12 +706,19 @@
           <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
             <h4 class="font-semibold text-stem-900">Post-Chat Thank You Note Generator</h4>
             <p class="mt-1 text-xs text-slate-500">Generate a thank-you note and a 60-day check-in after your informational chat.</p>
-            <div class="mt-4 grid gap-4 sm:grid-cols-2">
+            <div class="mt-4 space-y-4">
               <div>
-                <label for="followup-contact-name" class="mb-1.5 block text-sm font-medium text-slate-700">Contact Name (optional)</label>
-                <input type="text" id="followup-contact-name" placeholder="e.g. Jane Smith" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+                <label for="followup-contact-select" class="mb-1.5 block text-sm font-medium text-slate-700">Select Saved Mentor / Contact</label>
+                <select id="followup-contact-select" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20">
+                  <option value="">Select a saved mentor...</option>
+                  <option value="__custom__">Or enter custom name...</option>
+                </select>
               </div>
-              <div class="sm:col-span-2">
+              <div id="followup-custom-name-wrap" class="hidden">
+                <label for="followup-custom-name" class="mb-1.5 block text-sm font-medium text-slate-700">Custom Contact Name</label>
+                <input type="text" id="followup-custom-name" placeholder="e.g. Jane Smith" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+              </div>
+              <div>
                 <label for="followup-takeaway" class="mb-1.5 block text-sm font-medium text-slate-700">Key Takeaway / Highlight from your chat</label>
                 <input type="text" id="followup-takeaway" placeholder='e.g. Loved your advice on getting involved in institutional research' class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
               </div>
@@ -735,16 +730,16 @@
               <div class="rounded-lg border border-slate-200 bg-white p-4">
                 <div class="mb-2 flex items-start justify-between gap-2">
                   <h5 class="text-sm font-semibold text-stem-900">24-Hour Thank You (3 sentences)</h5>
-                  <button type="button" class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50" data-copy-target="followup-thankyou">Copy</button>
+                  <button type="button" class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50" data-copy-target="followup-thankyou">Copy to Clipboard</button>
                 </div>
-                <textarea id="followup-thankyou" readonly rows="4" class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-relaxed text-slate-700 focus:outline-none"></textarea>
+                <textarea id="followup-thankyou" spellcheck="true" rows="4" class="w-full resize-y rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm leading-relaxed text-slate-700 focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"></textarea>
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-4">
                 <div class="mb-2 flex items-start justify-between gap-2">
                   <h5 class="text-sm font-semibold text-stem-900">60-Day Follow-Up</h5>
-                  <button type="button" class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50" data-copy-target="followup-60day">Copy</button>
+                  <button type="button" class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50" data-copy-target="followup-60day">Copy to Clipboard</button>
                 </div>
-                <textarea id="followup-60day" readonly rows="5" class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-relaxed text-slate-700 focus:outline-none"></textarea>
+                <textarea id="followup-60day" spellcheck="true" rows="5" class="w-full resize-y rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm leading-relaxed text-slate-700 focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"></textarea>
               </div>
             </div>
           </article>
@@ -1328,13 +1323,7 @@
     }
 
     function normalizeReasonPhrase(reason) {
-      reason = trimField(reason);
-      if (!reason) return 'was inspired by your career path';
-      reason = reason.replace(/[.!?]+$/, '');
-      if (/^[A-Z]/.test(reason)) {
-        reason = reason.charAt(0).toLowerCase() + reason.slice(1);
-      }
-      return reason;
+      return cleanReasonInput(reason);
     }
 
     function formatSchoolList(schools) {
@@ -1490,9 +1479,77 @@
 
     function cleanPunctuation(text) {
       return text
+        .replace(/\.{2,}/g, '.')
         .replace(/\s+([.,!?;:])/g, '$1')
         .replace(/\s{2,}/g, ' ')
         .trim();
+    }
+
+    function convertThirdPersonToSecond(text) {
+      var result = text;
+      var startPatterns = [
+        [/^they are working at/i, 'I noticed your work at'],
+        [/^they work at/i, 'I noticed your work at'],
+        [/^they're working at/i, 'I noticed your work at'],
+        [/^they transferred from/i, 'you transferred from'],
+        [/^they graduated from/i, 'you graduated from'],
+        [/^saw they/i, 'noticed you'],
+        [/^they are/i, 'you are'],
+        [/^they were/i, 'you were'],
+        [/^they have/i, 'you have'],
+        [/^they've/i, "you've"],
+        [/^they're/i, "you're"]
+      ];
+
+      startPatterns.forEach(function (pair) {
+        result = result.replace(pair[0], pair[1]);
+      });
+
+      result = result.replace(/\btheir\b/gi, 'your');
+      result = result.replace(/\bthem\b/gi, 'you');
+      result = result.replace(/\bthey\b/gi, 'you');
+      return result;
+    }
+
+    function fixInlineCasing(text) {
+      return text.split(/(\s+)/).map(function (part) {
+        if (/^\s+$/.test(part)) return part;
+        if (/^(I'm|I've|I'd|I'll|i'm|i've|i'd|i'll)$/i.test(part)) {
+          return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+        }
+        if (/^[A-Z0-9]{2,}$/.test(part)) return part;
+        if (/[a-z][A-Z]|[A-Z]{2,}[a-z]/.test(part)) {
+          return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+        }
+        return part;
+      }).join('');
+    }
+
+    function fixPronounCasing(text) {
+      return text
+        .replace(/\bi'm\b/gi, "I'm")
+        .replace(/\bi've\b/gi, "I've")
+        .replace(/\bi'd\b/gi, "I'd")
+        .replace(/\bi'll\b/gi, "I'll")
+        .replace(/(^|[.!?]\s+)i\b/g, '$1I')
+        .replace(/\si\b/g, ' I');
+    }
+
+    function cleanReasonInput(reason) {
+      reason = trimField(reason);
+      if (!reason) return 'was inspired by your career path';
+
+      reason = convertThirdPersonToSecond(reason);
+      reason = fixPronounCasing(reason);
+      reason = fixInlineCasing(reason);
+      reason = reason.replace(/[.!?]+$/, '');
+      reason = cleanPunctuation(reason);
+
+      if (/^[A-Z]/.test(reason)) {
+        reason = reason.charAt(0).toLowerCase() + reason.slice(1);
+      }
+
+      return reason;
     }
 
     function getHumanHighlight() {
@@ -1594,7 +1651,6 @@
       updateProfileStatusPill();
       renderResumeUploadState();
       renderHighlightTags();
-      syncPitchFieldsFromProfile(false);
     }
 
     function readProfileFromField(field) {
@@ -1846,45 +1902,14 @@
       }
     }
 
-    function syncPitchFieldsFromProfile(updateOutput) {
-      var intro = getStudentIntro();
-      var nameField = document.getElementById('pitch-background');
-      var passionField = document.getElementById('pitch-passion');
-      var goalField = document.getElementById('pitch-goal');
-
-      if (nameField && intro.pitchBackground) nameField.value = intro.pitchBackground;
-      if (passionField && intro.passion) passionField.value = intro.passion;
-      if (goalField) goalField.value = intro.pitchGoal;
-
-      if (updateOutput !== false && hasPitchProfileData()) {
-        renderElevatorPitch();
-      }
-    }
-
     function renderElevatorPitch() {
-      var nameField = document.getElementById('pitch-background');
-      var passionField = document.getElementById('pitch-passion');
-      var goalField = document.getElementById('pitch-goal');
-      var pitchOutput = document.getElementById('pitch-output');
       var pitchScript = document.getElementById('pitch-script');
-
-      if (!nameField || !passionField || !goalField || !pitchOutput || !pitchScript) return;
-
-      if (!hasPitchProfileData()) {
-        pitchOutput.classList.add('hidden');
-        return;
-      }
-
-      pitchScript.value = buildElevatorPitch(
-        nameField.value,
-        passionField.value,
-        goalField.value
-      );
-      pitchOutput.classList.remove('hidden');
+      if (!pitchScript) return;
+      pitchScript.value = buildElevatorPitch();
     }
 
     function refreshPersonalizedTemplates() {
-      syncPitchFieldsFromProfile(true);
+      renderElevatorPitch();
 
       if (currentSearchContext.searchLabel && !templatesContent.classList.contains('hidden')) {
         generateTemplates(
@@ -2071,7 +2096,7 @@
         return {
           connection: document.getElementById('template-connection').value,
           followup: document.getElementById('template-followup').value.replace('[Name]', name),
-          questions: document.getElementById('template-questions').dataset.plainText || ''
+          questions: document.getElementById('template-questions').value
         };
       }
 
@@ -2136,33 +2161,170 @@
       }
     }
 
-    function buildThankYouMessage(name, takeaway) {
-      var contactName = name || '[Name]';
-      var highlight = takeaway || 'your advice on breaking into this field';
-      return (
-        'Hi ' + contactName + ', thank you again for taking the time to speak with me. ' +
-        'I especially appreciated ' + highlight + '. ' +
-        'I\'m already working on the next steps we discussed and wanted to say how much your perspective helped me.'
+    function normalizeTakeaway(takeaway) {
+      var text = trimField(takeaway);
+      if (!text) return 'your advice on breaking into this field';
+      text = text.replace(/^loved your advice on\s+/i, 'your advice on ');
+      text = text.replace(/^your advice on\s+/i, 'your advice on ');
+      if (/^[A-Z]/.test(text) && !/^I\b/.test(text)) {
+        text = text.charAt(0).toLowerCase() + text.slice(1);
+      }
+      return text;
+    }
+
+    function formatContactRolePhrase(contact) {
+      if (!contact) return '';
+      var title = trimField(contact.title);
+      var company = trimField(contact.company);
+      if (title && company) {
+        return ' As a ' + title + ' at ' + company + ',';
+      }
+      if (title) {
+        return ' As a ' + title + ',';
+      }
+      if (company) {
+        return ' Given your work at ' + company + ',';
+      }
+      return '';
+    }
+
+    function formatBookmarkContactLabel(bookmark) {
+      var label = bookmark.name + ' — ' + bookmark.title;
+      if (bookmark.company) {
+        label += ' at ' + bookmark.company;
+      }
+      return label;
+    }
+
+    function toggleFollowupCustomNameVisibility() {
+      var select = document.getElementById('followup-contact-select');
+      var wrap = document.getElementById('followup-custom-name-wrap');
+      if (!select || !wrap) return;
+
+      var bookmarks = loadBookmarks();
+      if (bookmarks.length === 0 || select.value === '__custom__') {
+        wrap.classList.remove('hidden');
+      } else {
+        wrap.classList.add('hidden');
+      }
+    }
+
+    function populateFollowupContactSelect() {
+      var select = document.getElementById('followup-contact-select');
+      if (!select) return;
+
+      var bookmarks = loadBookmarks();
+      var previous = select.value;
+
+      var html = '<option value="">Select a saved mentor...</option>';
+      bookmarks.forEach(function (bookmark) {
+        html += '<option value="' + escapeHtml(bookmark.id) + '">' + escapeHtml(formatBookmarkContactLabel(bookmark)) + '</option>';
+      });
+      html += '<option value="__custom__">Or enter custom name...</option>';
+      select.innerHTML = html;
+
+      if (previous && (previous === '__custom__' || bookmarks.some(function (bookmark) {
+        return bookmark.id === previous;
+      }))) {
+        select.value = previous;
+      } else if (bookmarks.length === 0) {
+        select.value = '__custom__';
+      }
+
+      toggleFollowupCustomNameVisibility();
+    }
+
+    function getFollowupContactDetails() {
+      var select = document.getElementById('followup-contact-select');
+      var bookmarks = loadBookmarks();
+
+      if (!select) {
+        return { name: '[Name]', title: '', company: '' };
+      }
+
+      if (select.value === '__custom__' || (bookmarks.length === 0 && select.value !== '')) {
+        var customField = document.getElementById('followup-custom-name');
+        return {
+          name: customField && customField.value.trim() ? customField.value.trim() : '[Name]',
+          title: '',
+          company: ''
+        };
+      }
+
+      if (select.value) {
+        var bookmark = bookmarks.find(function (item) {
+          return item.id === select.value;
+        });
+        if (bookmark) {
+          return {
+            name: bookmark.name,
+            title: bookmark.title || '',
+            company: bookmark.company || ''
+          };
+        }
+      }
+
+      return { name: '[Name]', title: '', company: '' };
+    }
+
+    function initFollowupGenerator() {
+      var select = document.getElementById('followup-contact-select');
+      if (select) {
+        select.addEventListener('change', toggleFollowupCustomNameVisibility);
+      }
+      populateFollowupContactSelect();
+    }
+
+    function buildThankYouMessage(contact, takeaway) {
+      if (typeof contact === 'string') {
+        contact = { name: contact, title: '', company: '' };
+      }
+      contact = contact || {};
+      var contactName = contact.name || '[Name]';
+      var highlight = normalizeTakeaway(takeaway);
+      var rolePhrase = formatContactRolePhrase(contact);
+
+      return cleanPunctuation(
+        'Hi ' + contactName + ', thank you again for taking the time to speak with me yesterday.' + rolePhrase +
+        ' I especially appreciated ' + highlight + '.' +
+        ' I\'m already working on the next steps we discussed and wanted to say how much your perspective helped me.'
       );
     }
 
-    function build60DayFollowUp(name, takeaway) {
-      var contactName = name || '[Name]';
-      var highlight = takeaway || 'our conversation about your career path';
-      return (
-        'Hi ' + contactName + ', I hope you\'ve been doing well! It\'s been about two months since we spoke, and I wanted to share a quick update. ' +
-        'Since our chat, I\'ve been building on ' + highlight + ' and making progress on the goals we discussed. ' +
-        'If you have 10 minutes in the coming weeks, I\'d love to reconnect and hear any updates on your end as well. Thank you again for being such a generous mentor.'
+    function build60DayFollowUp(contact, takeaway) {
+      if (typeof contact === 'string') {
+        contact = { name: contact, title: '', company: '' };
+      }
+      contact = contact || {};
+      var contactName = contact.name || '[Name]';
+      var highlight = normalizeTakeaway(takeaway);
+      var roleContext = '';
+      var title = trimField(contact.title);
+      var company = trimField(contact.company);
+      if (title && company) {
+        roleContext = ' I\'ve kept your perspective as a ' + title + ' at ' + company + ' in mind as I\'ve moved forward.';
+      } else if (title) {
+        roleContext = ' I\'ve kept your perspective as a ' + title + ' in mind as I\'ve moved forward.';
+      }
+
+      return cleanPunctuation(
+        'Hi ' + contactName + ', I hope you\'ve been doing well! It\'s been about two months since we spoke, and I wanted to share a quick update.' + roleContext +
+        ' Since our chat, I\'ve been building on ' + highlight + ' and making progress on the goals we discussed.' +
+        ' If you have 10 minutes in the coming weeks, I\'d love to reconnect and hear any updates on your end as well. Thank you again for being such a generous mentor.'
       );
     }
 
-    function buildElevatorPitch(name, passion, goal) {
+    function buildElevatorPitch() {
       var intro = getStudentIntro();
-      var speakerName = trimField(name) || intro.firstName || 'there';
+      if (!hasPitchProfileData()) {
+        return 'Complete your profile to auto-generate your 30-second opening. Go to Overview and click "Complete Your Profile" — your name, major, college, and passion will fill this in automatically.';
+      }
+
+      var speakerName = intro.firstName || 'there';
       var major = intro.major || 'STEM';
       var college = intro.college || 'community college';
-      var corePassion = trimField(passion) || intro.passion || 'making STEM more accessible';
-      var fieldGoal = trimField(goal) || getPitchFieldGoal();
+      var corePassion = intro.passion || 'making STEM more accessible';
+      var fieldGoal = getPitchFieldGoal();
 
       return cleanPunctuation(
         'Hi! I\'m ' + speakerName + ', currently studying ' + major + ' at ' + college + '. I\'m really passionate about ' + corePassion + ' and looking to learn more about career paths in ' + fieldGoal + '. I\'m excited to connect today to learn a bit about your journey and experience in the space.'
@@ -2223,6 +2385,7 @@
         bookmarksEmpty.classList.remove('hidden');
         bookmarksList.classList.add('hidden');
         bookmarksList.innerHTML = '';
+        populateFollowupContactSelect();
         return;
       }
 
@@ -2268,6 +2431,8 @@
           '</li>'
         );
       }).join('');
+
+      populateFollowupContactSelect();
     }
 
     function showBookmarkMessage(text, isError) {
@@ -2370,15 +2535,15 @@
       document.getElementById('template-followup').value = buildFollowUpMessage(searchLabel, schoolLabel, reasonForConnecting);
 
       var questions = buildQuestions(searchLabel);
-      var questionsHtml = '<ol class="list-decimal space-y-3 pl-5">';
-      questions.forEach(function (q) {
-        questionsHtml += '<li>' + q + '</li>';
-      });
-      questionsHtml += '</ol>';
-      document.getElementById('template-questions').innerHTML = questionsHtml;
-      document.getElementById('template-questions').dataset.plainText = questions.map(function (q, i) {
+      document.getElementById('template-questions').value = questions.map(function (q, i) {
         return (i + 1) + '. ' + q;
       }).join('\n\n');
+    }
+
+    function initTemplateEditors() {
+      document.getElementById('template-connection').addEventListener('input', function () {
+        updateCharCount(this.value);
+      });
     }
 
     form.addEventListener('submit', function (e) {
@@ -2428,7 +2593,7 @@
       searchResult.classList.remove('hidden');
 
       revealStashStep();
-      syncPitchFieldsFromProfile(true);
+      renderElevatorPitch();
     });
 
     bookmarkForm.addEventListener('submit', function (e) {
@@ -2542,19 +2707,19 @@
     });
 
     document.getElementById('generate-followup-btn').addEventListener('click', function () {
-      var name = document.getElementById('followup-contact-name').value.trim();
+      var contact = getFollowupContactDetails();
       var takeaway = document.getElementById('followup-takeaway').value.trim();
 
-      document.getElementById('followup-thankyou').value = buildThankYouMessage(name, takeaway);
-      document.getElementById('followup-60day').value = build60DayFollowUp(name, takeaway);
+      document.getElementById('followup-thankyou').value = buildThankYouMessage(contact, takeaway);
+      document.getElementById('followup-60day').value = build60DayFollowUp(contact, takeaway);
       document.getElementById('followup-output').classList.remove('hidden');
     });
-
-    document.getElementById('generate-pitch-btn').addEventListener('click', renderElevatorPitch);
 
     renderBookmarks();
     initPillarSelection();
     initStudentProfile();
+    initTemplateEditors();
+    initFollowupGenerator();
 
     document.getElementById('search-result').addEventListener('click', function (e) {
       var copyBtn = e.target.closest('.copy-link-btn');
