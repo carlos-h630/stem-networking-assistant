@@ -127,13 +127,39 @@
     .quick-step-card {
       background: #ffffff;
     }
-    .profile-drawer {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
+    .profile-panel-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      z-index: 40;
     }
-    .profile-drawer.open {
-      max-height: 1200px;
+    .profile-panel-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+    .profile-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      height: 100%;
+      width: min(100%, 32rem);
+      max-width: 100vw;
+      flex-direction: column;
+      background: #ffffff;
+      box-shadow: -8px 0 32px rgba(15, 23, 42, 0.12);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+    .profile-panel.open {
+      transform: translateX(0);
+    }
+    body.profile-panel-open {
+      overflow: hidden;
     }
     .profile-status-pill.complete {
       border-color: #10b981;
@@ -153,23 +179,29 @@
       border-color: #0284c7;
       background-color: #f0f9ff;
     }
+    .resume-file-card {
+      border: 1px solid #bbf7d0;
+      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+    }
     .highlight-tag {
       display: inline-flex;
       align-items: center;
-      gap: 0.25rem;
+      gap: 0.375rem;
       border-radius: 9999px;
       border: 1px solid #bae6fd;
       background-color: #f0f9ff;
-      padding: 0.25rem 0.25rem 0.25rem 0.75rem;
-    }
-    .highlight-tag input {
-      border: none;
-      background: transparent;
+      padding: 0.35rem 0.5rem 0.35rem 0.85rem;
       font-size: 0.75rem;
       font-weight: 500;
       color: #0369a1;
-      min-width: 6rem;
+    }
+    .highlight-tag-label {
       max-width: 14rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .highlight-tag-label[contenteditable="true"]:focus {
       outline: none;
     }
     .highlight-tag-remove {
@@ -215,40 +247,9 @@
           id="profile-status-pill"
           class="profile-status-pill incomplete shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
           aria-expanded="false"
-          aria-controls="profile-drawer"
+          aria-controls="profile-panel"
         >
           👤 Set Up Profile
-        </button>
-      </div>
-
-      <div id="profile-drawer" class="profile-drawer mt-4 border-t border-slate-100 pt-4" aria-hidden="true">
-        <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Quick Profile Edit</p>
-        <p class="mt-1 text-sm text-slate-600">Updates here sync with your Overview profile and personalize templates across the app.</p>
-        <div class="mt-4 grid gap-3 sm:grid-cols-2">
-          <div>
-            <label class="mb-1 block text-xs font-medium text-slate-700">Full Name</label>
-            <input type="text" data-profile-field="fullName" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="Alex Rivera" />
-          </div>
-          <div>
-            <label class="mb-1 block text-xs font-medium text-slate-700">Current College</label>
-            <select data-profile-field="college" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20">
-              <option value="">Select college</option>
-              <option value="Foothill College">Foothill College</option>
-              <option value="De Anza College">De Anza College</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div class="sm:col-span-2">
-            <label class="mb-1 block text-xs font-medium text-slate-700">Major / Field of Study</label>
-            <input type="text" data-profile-field="major" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="Data Science &amp; Applied Math" />
-          </div>
-          <div class="sm:col-span-2">
-            <label class="mb-1 block text-xs font-medium text-slate-700">Target Career Focus / Passion</label>
-            <input type="text" data-profile-field="passion" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="STEM educational equity, community data analytics" />
-          </div>
-        </div>
-        <button type="button" id="profile-drawer-goto" class="mt-3 text-sm font-medium text-stem-700 hover:text-stem-900 hover:underline">
-          Open full profile &amp; resume extractor on Overview →
         </button>
       </div>
     </div>
@@ -297,75 +298,6 @@
     <!-- Tab 1: Overview -->
     <div id="tab-start" class="tab-panel space-y-8">
 
-      <!-- Student Profile & Resume Extractor -->
-      <section id="student-profile-section" class="rounded-lg border border-slate-200 bg-white p-6 sm:p-8" aria-labelledby="profile-heading">
-        <h2 id="profile-heading" class="text-xl font-semibold tracking-tight text-stem-900 sm:text-2xl">Your Profile &amp; Background</h2>
-        <p class="mt-2 text-sm leading-relaxed text-slate-600">
-          Save your details once to personalize connection notes, follow-up messages, and your elevator pitch across the app.
-        </p>
-
-        <div class="mt-6 grid gap-4 sm:grid-cols-2">
-          <div>
-            <label for="profile-full-name" class="mb-1.5 block text-sm font-medium text-slate-700">Full Name</label>
-            <input type="text" id="profile-full-name" data-profile-field="fullName" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="e.g. Alex Rivera" />
-          </div>
-          <div>
-            <label for="profile-college" class="mb-1.5 block text-sm font-medium text-slate-700">Current College</label>
-            <select id="profile-college" data-profile-field="college" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20">
-              <option value="">Select college</option>
-              <option value="Foothill College">Foothill College</option>
-              <option value="De Anza College">De Anza College</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div id="profile-college-other-wrap" class="hidden sm:col-span-2">
-            <label for="profile-college-other" class="mb-1.5 block text-sm font-medium text-slate-700">College Name</label>
-            <input type="text" id="profile-college-other" data-profile-field="collegeOther" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="Your community college" />
-          </div>
-          <div class="sm:col-span-2">
-            <label for="profile-major" class="mb-1.5 block text-sm font-medium text-slate-700">Major / Field of Study</label>
-            <input type="text" id="profile-major" data-profile-field="major" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="e.g. Data Science &amp; Applied Math" />
-          </div>
-          <div class="sm:col-span-2">
-            <label for="profile-passion" class="mb-1.5 block text-sm font-medium text-slate-700">Target Career Focus / Passion</label>
-            <input type="text" id="profile-passion" data-profile-field="passion" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="e.g. STEM educational equity, community data analytics" />
-          </div>
-        </div>
-
-        <div class="mt-8 border-t border-slate-200 pt-6">
-          <h3 class="text-sm font-semibold text-stem-900">Resume Extractor</h3>
-          <p class="mt-1 text-xs text-slate-500">Upload a resume or paste text to pull out experience hooks for your outreach.</p>
-
-          <div id="resume-dropzone" class="resume-dropzone mt-4 rounded-lg bg-slate-50 px-5 py-8 text-center">
-            <input type="file" id="resume-file-input" class="hidden" accept=".txt,.pdf,text/plain,application/pdf" />
-            <p class="text-sm font-medium text-slate-700">📄 Upload Resume (.txt, .pdf) or Paste Resume Text</p>
-            <p class="mt-1 text-xs text-slate-500">Drag and drop here, or</p>
-            <button type="button" id="resume-browse-btn" class="mt-3 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">
-              Browse Files
-            </button>
-          </div>
-
-          <details class="mt-4 rounded-lg border border-slate-200 bg-slate-50/50">
-            <summary class="cursor-pointer px-4 py-3 text-sm font-medium text-stem-900">Or paste your resume bio / summary here</summary>
-            <div class="border-t border-slate-200 px-4 py-3">
-              <textarea id="resume-paste" data-profile-field="resumeText" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm leading-relaxed focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" rows="5" placeholder="Paste resume summary, experience bullets, or bio..."></textarea>
-              <button type="button" id="extract-highlights-btn" class="mt-3 rounded-md bg-stem-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-stem-800">
-                Extract Key Highlights
-              </button>
-            </div>
-          </details>
-
-          <div class="mt-4">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Resume Highlights</p>
-              <button type="button" id="add-highlight-btn" class="text-xs font-semibold text-stem-700 hover:text-stem-900">+ Add highlight</button>
-            </div>
-            <div id="resume-highlights" class="mt-2 flex flex-wrap gap-2"></div>
-            <p id="resume-highlights-empty" class="mt-2 text-xs text-slate-500">Upload or paste a resume to generate editable highlight tags.</p>
-          </div>
-        </div>
-      </section>
-
       <section class="rounded-lg border border-slate-200 bg-white p-6 sm:p-8" aria-labelledby="welcome-heading">
         <h2 id="welcome-heading" class="text-xl font-semibold tracking-tight text-stem-900 sm:text-2xl">
           How It Works
@@ -377,27 +309,27 @@
         <div class="mt-8 grid gap-5 sm:grid-cols-3">
           <article class="quick-step-card rounded-lg border border-slate-200 p-5">
             <span class="step-badge inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-semibold text-white">1</span>
-            <h3 class="mt-4 text-sm font-semibold text-stem-900">Select Focus Fields</h3>
-            <p class="mt-2 text-sm leading-relaxed text-slate-600">Pick broad impact areas like Educational Data, Science Policy, or Community Outreach.</p>
+            <h3 class="mt-4 text-sm font-semibold text-stem-900">Set Up Your Profile</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">Add your background, interests, and optional resume highlights to power personalized outreach.</p>
           </article>
           <article class="quick-step-card rounded-lg border border-slate-200 p-5">
             <span class="step-badge inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-semibold text-white">2</span>
-            <h3 class="mt-4 text-sm font-semibold text-stem-900">Explore Alumni Searches</h3>
-            <p class="mt-2 text-sm leading-relaxed text-slate-600">Launch pre-filtered LinkedIn searches showcasing real CC alumni in those roles.</p>
+            <h3 class="mt-4 text-sm font-semibold text-stem-900">Explore Alumni &amp; Roles</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">Pick impact pillars like Education, Policy, or Community Outreach to generate curated LinkedIn searches.</p>
           </article>
           <article class="quick-step-card rounded-lg border border-slate-200 p-5">
             <span class="step-badge inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-semibold text-white">3</span>
-            <h3 class="mt-4 text-sm font-semibold text-stem-900">Reach Out with Confidence</h3>
-            <p class="mt-2 text-sm leading-relaxed text-slate-600">Use personalized outreach templates and save mentors to your pipeline.</p>
+            <h3 class="mt-4 text-sm font-semibold text-stem-900">Connect &amp; Prep</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">Use personalized connection notes, prepare with coffee chat playbooks, and track mentors.</p>
           </article>
         </div>
 
         <button
           type="button"
-          id="start-search-btn"
+          id="complete-profile-btn"
           class="mt-8 inline-flex items-center gap-2 rounded-md bg-stem-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-stem-800 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
         >
-          Launch Search Tool
+          Complete Your Profile
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
         </button>
       </section>
@@ -410,7 +342,7 @@
     <section class="overflow-visible rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step1-heading">
       <div class="relative z-10 mb-6 flex items-center gap-3 bg-white">
         <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">1</span>
-        <h2 id="step1-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Preferences &amp; Impact Pillars</h2>
+        <h2 id="step1-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Preferences, Impact Pillars &amp; Custom Tags</h2>
       </div>
 
       <form id="preferences-form" class="space-y-6">
@@ -418,6 +350,27 @@
           <legend class="mb-1 block text-sm font-medium text-slate-700">Impact Pillars</legend>
           <p class="mb-3 text-xs text-slate-500">Select one or more fields. Optional sub-tags appear under each selected pillar.</p>
           <div id="pillar-grid" class="grid gap-3 sm:grid-cols-2"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend class="mb-1 block text-sm font-medium text-slate-700">Custom Keywords</legend>
+          <p class="mb-3 text-xs text-slate-500">Add your own tags to refine the LinkedIn search (e.g., transfer student, nonprofit, GIS).</p>
+          <div class="flex gap-2">
+            <input
+              type="text"
+              id="custom-tag-input"
+              placeholder="e.g. policy research"
+              class="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
+            />
+            <button
+              type="button"
+              id="custom-tag-add-btn"
+              class="shrink-0 rounded-lg border border-stem-600 bg-white px-4 py-2 text-sm font-semibold text-stem-700 transition hover:bg-stem-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
+            >
+              + Add
+            </button>
+          </div>
+          <div id="custom-tags-list" class="mt-3 flex flex-wrap gap-2"></div>
         </fieldset>
 
         <fieldset>
@@ -530,14 +483,61 @@
     <section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step3-heading">
       <div class="mb-2 flex items-center gap-3">
         <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">3</span>
-        <h2 id="step3-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Connection Request Note &amp; Initial Outreach Templates</h2>
+        <h2 id="step3-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Stash Profile &amp; Connection Hook</h2>
       </div>
       <p class="mb-6 ml-11 text-sm text-slate-500">
-        Generate your search link in Step 1, then copy and personalize these templates before sending on LinkedIn.
+        Found someone on LinkedIn? Save their profile and tell us what caught your eye to personalize your outreach.
+      </p>
+
+      <div id="stash-placeholder" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
+        Generate your search link in Steps 1–2, then stash a profile here to unlock tailored outreach notes.
+      </div>
+
+      <form id="bookmark-form" class="hidden space-y-4 rounded-xl border border-slate-200 bg-slate-50/50 p-5">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="bookmark-name" class="mb-1.5 block text-sm font-medium text-slate-700">Name</label>
+            <input type="text" id="bookmark-name" name="bookmark-name" required placeholder="e.g. Jane Smith" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+          </div>
+          <div>
+            <label for="bookmark-title" class="mb-1.5 block text-sm font-medium text-slate-700">Job Title</label>
+            <input type="text" id="bookmark-title" name="bookmark-title" required placeholder="e.g. Education Data Analyst" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+          </div>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="bookmark-company" class="mb-1.5 block text-sm font-medium text-slate-700">Organization</label>
+            <input type="text" id="bookmark-company" name="bookmark-company" placeholder="e.g. County Office of Education" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+          </div>
+          <div>
+            <label for="bookmark-url" class="mb-1.5 block text-sm font-medium text-slate-700">LinkedIn Profile URL</label>
+            <input type="url" id="bookmark-url" name="bookmark-url" placeholder="https://www.linkedin.com/in/..." class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+          </div>
+        </div>
+        <div>
+          <label for="bookmark-reason" class="mb-1.5 block text-sm font-medium text-slate-700">What caught your eye about this person? (Reason for connecting) <span class="text-red-500">*</span></label>
+          <textarea id="bookmark-reason" name="bookmark-reason" required rows="3" placeholder="e.g., Saw they transferred from CC to Berkeley and now work in policy research..." class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm leading-relaxed shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"></textarea>
+        </div>
+        <button type="submit" id="bookmark-submit" class="inline-flex items-center gap-2 rounded-md bg-stem-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-stem-800 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
+          Stash Profile &amp; Generate Tailored Notes
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+        </button>
+        <p id="bookmark-form-message" class="hidden text-sm" role="status"></p>
+      </form>
+    </section>
+
+    <!-- Step 4 -->
+    <section id="step4-section" class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step4-heading">
+      <div class="mb-2 flex items-center gap-3">
+        <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">4</span>
+        <h2 id="step4-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Tailored Outreach Notes &amp; Coffee Chat Templates</h2>
+      </div>
+      <p class="mb-6 ml-11 text-sm text-slate-500">
+        Copy these personalized templates after stashing a profile in Step 3.
       </p>
 
       <div id="templates-placeholder" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
-        Templates will appear here once you generate your search link.
+        Stash a profile in Step 3 to generate tailored connection notes and follow-up messages.
       </div>
 
       <div id="templates-content" class="hidden space-y-8">
@@ -625,28 +625,28 @@
           <!-- 30-Second Elevator Pitch Builder -->
           <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
             <h4 class="font-semibold text-stem-900">30-Second Elevator Pitch Builder</h4>
-            <p class="mt-1 text-xs text-slate-500">Practice a confident opening before your coffee chat.</p>
+            <p class="mt-1 text-xs text-slate-500">Auto-filled from your profile. Tweak any field and click Update Pitch.</p>
             <div class="mt-4 space-y-4">
               <div>
-                <label for="pitch-background" class="mb-1.5 block text-sm font-medium text-slate-700">1. Background</label>
-                <input type="text" id="pitch-background" placeholder="e.g. Data Science student at De Anza" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+                <label for="pitch-background" class="mb-1.5 block text-sm font-medium text-slate-700">1. Your Name</label>
+                <input type="text" id="pitch-background" placeholder="e.g. Alex" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
               </div>
               <div>
                 <label for="pitch-passion" class="mb-1.5 block text-sm font-medium text-slate-700">2. Core Passion</label>
                 <input type="text" id="pitch-passion" placeholder="e.g. educational equity and STEM access" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
               </div>
               <div>
-                <label for="pitch-goal" class="mb-1.5 block text-sm font-medium text-slate-700">3. Current Goal</label>
-                <input type="text" id="pitch-goal" placeholder="e.g. exploring how data is used in non-profits" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
+                <label for="pitch-goal" class="mb-1.5 block text-sm font-medium text-slate-700">3. Field / Goal</label>
+                <input type="text" id="pitch-goal" placeholder="e.g. educational data and science policy" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
               </div>
             </div>
             <button type="button" id="generate-pitch-btn" class="mt-4 rounded-lg bg-stem-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
-              Build My Pitch
+              Update Pitch
             </button>
             <div id="pitch-output" class="mt-4 hidden rounded-lg border border-slate-200 bg-white p-4">
               <div class="mb-2 flex items-start justify-between gap-2">
                 <h5 class="text-sm font-semibold text-stem-900">Your 30-Second Opening</h5>
-                <button type="button" id="copy-pitch-btn" class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50">Copy Pitch</button>
+                <button type="button" id="copy-pitch-btn" class="copy-btn shrink-0 rounded-lg border border-stem-600 bg-white px-2.5 py-1 text-xs font-semibold text-stem-700 transition hover:bg-stem-50" data-copy-target="pitch-script">Copy Pitch</button>
               </div>
               <textarea id="pitch-script" readonly rows="5" class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-relaxed text-slate-700 focus:outline-none"></textarea>
             </div>
@@ -807,71 +807,22 @@
             </div>
           </article>
 
-          <!-- Coming Soon -->
-          <article class="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 p-5">
-            <h4 class="font-semibold text-slate-700">Coming Soon: LinkedIn Profile Feedback Tool &amp; Question Bank</h4>
-            <p class="mt-2 text-sm text-slate-500">Get tips to polish your LinkedIn profile and browse a curated bank of networking questions tailored to non-corporate STEM paths.</p>
-          </article>
-
         </div>
       </section>
     </div>
 
     <!-- Tab 4: Saved Profiles -->
     <div id="tab-radar" class="tab-panel hidden space-y-6">
-      <section class="rounded-lg border border-slate-200 bg-white p-6 sm:p-8" aria-labelledby="radar-form-heading">
-        <h2 id="radar-form-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Save a Profile</h2>
-        <p class="mt-2 text-sm leading-relaxed text-slate-600">
-          Add mentors and alumni to your pipeline. Outreach templates from your search are saved with each profile.
-        </p>
-
-        <form id="bookmark-form" class="mt-6 space-y-4 rounded-lg border border-slate-200 bg-slate-50/50 p-5">
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label for="bookmark-name" class="mb-1.5 block text-sm font-medium text-slate-700">Name</label>
-              <input type="text" id="bookmark-name" name="bookmark-name" required placeholder="e.g. Jane Smith" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
-            </div>
-            <div>
-              <label for="bookmark-title" class="mb-1.5 block text-sm font-medium text-slate-700">Job Title</label>
-              <input type="text" id="bookmark-title" name="bookmark-title" required placeholder="e.g. Education Data Analyst" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
-            </div>
-          </div>
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label for="bookmark-company" class="mb-1.5 block text-sm font-medium text-slate-700">Organization</label>
-              <input type="text" id="bookmark-company" name="bookmark-company" placeholder="e.g. County Office of Education" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
-            </div>
-            <div>
-              <label for="bookmark-url" class="mb-1.5 block text-sm font-medium text-slate-700">LinkedIn Profile URL</label>
-              <input type="url" id="bookmark-url" name="bookmark-url" placeholder="https://www.linkedin.com/in/..." class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
-            </div>
-          </div>
-          <div>
-            <label for="bookmark-description" class="mb-1.5 block text-sm font-medium text-slate-700">Job Description</label>
-            <textarea id="bookmark-description" name="bookmark-description" rows="4" placeholder="Paste their headline, About section, or role summary from LinkedIn..." class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm leading-relaxed shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"></textarea>
-            <p class="mt-1 text-xs text-slate-500">Leave blank to use the target role description for your selected pillars.</p>
-          </div>
-          <div>
-            <label for="bookmark-notes" class="mb-1.5 block text-sm font-medium text-slate-700">Personal Notes (optional)</label>
-            <input type="text" id="bookmark-notes" name="bookmark-notes" placeholder="e.g. Met at campus event, interested in transfer path" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" />
-          </div>
-          <button type="submit" id="bookmark-submit" class="rounded-md bg-stem-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-stem-800 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
-            Save Profile
-          </button>
-          <p id="bookmark-form-message" class="hidden text-sm" role="status"></p>
-        </form>
-      </section>
-
       <section class="rounded-lg border border-slate-200 bg-white p-6 sm:p-8" aria-labelledby="radar-list-heading">
-        <div class="mb-6 flex items-center justify-between gap-3">
-          <h2 id="radar-list-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Your Outreach Pipeline</h2>
+        <h2 id="radar-list-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Your Outreach Pipeline</h2>
+        <p class="mt-2 text-sm leading-relaxed text-slate-600">
+          Profiles you stash on the Find Alumni tab appear here. Update each contact's status as you progress from first outreach to completed conversation.
+        </p>
+        <div class="mt-6 mb-6 flex items-center justify-end">
           <span id="bookmark-count" class="text-xs font-medium text-slate-500">0 saved</span>
         </div>
-        <p class="mb-6 text-sm leading-relaxed text-slate-600">
-          Update each contact's status as you progress from first outreach to completed conversation.
-        </p>
         <div id="bookmarks-empty" class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
-          No profiles saved yet. Use the form above to add professionals to your pipeline.
+          No profiles saved yet. Stash a mentor from the Find Alumni tab to build your pipeline.
         </div>
         <ul id="bookmarks-list" class="hidden space-y-6"></ul>
       </section>
@@ -879,7 +830,128 @@
 
   </main>
 
-  <div id="toast" class="toast fixed bottom-6 left-1/2 z-50 hidden rounded-lg bg-stem-900 px-5 py-3 text-sm font-medium text-white shadow-lg" role="alert" aria-live="polite"></div>
+  <!-- Profile slide-over panel -->
+  <div id="profile-panel-backdrop" class="profile-panel-backdrop" aria-hidden="true"></div>
+  <aside
+    id="profile-panel"
+    class="profile-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="profile-heading"
+    aria-hidden="true"
+  >
+    <div class="flex items-start justify-between gap-3 border-b border-slate-200 px-5 py-4 sm:px-6">
+      <div>
+        <h2 id="profile-heading" class="text-lg font-semibold text-stem-900">Your Profile &amp; Background</h2>
+        <p class="mt-1 text-sm text-slate-600">Personalize outreach templates across the app.</p>
+      </div>
+      <button
+        type="button"
+        id="profile-panel-close"
+        class="rounded-md p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-stem-500"
+        aria-label="Close profile panel"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+
+    <div id="student-profile-section" class="flex-1 overflow-y-auto px-5 py-5 sm:px-6">
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <label for="profile-full-name" class="mb-1.5 block text-sm font-medium text-slate-700">Full Name</label>
+          <input type="text" id="profile-full-name" data-profile-field="fullName" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="e.g. Alex Rivera" />
+        </div>
+        <div class="sm:col-span-2">
+          <label for="profile-college" class="mb-1.5 block text-sm font-medium text-slate-700">Current College</label>
+          <select id="profile-college" data-profile-field="college" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20">
+            <option value="">Select college</option>
+            <option value="Foothill College">Foothill College</option>
+            <option value="De Anza College">De Anza College</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div id="profile-college-other-wrap" class="hidden sm:col-span-2">
+          <label for="profile-college-other" class="mb-1.5 block text-sm font-medium text-slate-700">College Name</label>
+          <input type="text" id="profile-college-other" data-profile-field="collegeOther" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="e.g. UC Berkeley" />
+        </div>
+        <div class="sm:col-span-2">
+          <label for="profile-major" class="mb-1.5 block text-sm font-medium text-slate-700">Major / Field of Study</label>
+          <input type="text" id="profile-major" data-profile-field="major" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="e.g. Data Science &amp; Applied Math" />
+        </div>
+        <div class="sm:col-span-2">
+          <label for="profile-passion" class="mb-1.5 block text-sm font-medium text-slate-700">Target Career Focus / Passion</label>
+          <input type="text" id="profile-passion" data-profile-field="passion" class="profile-sync-field w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="e.g. STEM educational equity, community data analytics" />
+        </div>
+      </div>
+
+      <div class="mt-8 border-t border-slate-200 pt-6">
+        <h3 class="text-sm font-semibold text-stem-900">Resume Extractor</h3>
+        <p class="mt-1 text-xs text-slate-500">Upload a resume or paste text to pull out experience hooks for your outreach.</p>
+
+        <div id="resume-upload-area" class="mt-4">
+          <input type="file" id="resume-file-input" class="hidden" accept=".txt,.pdf,text/plain,application/pdf" />
+
+          <div id="resume-dropzone" class="resume-dropzone rounded-lg bg-slate-50 px-5 py-8 text-center">
+            <p class="text-sm font-medium text-slate-700">📄 Upload Resume (.txt, .pdf) or Paste Resume Text</p>
+            <p class="mt-1 text-xs text-slate-500">Drag and drop here, or</p>
+            <button type="button" id="resume-browse-btn" class="mt-3 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">
+              Browse Files
+            </button>
+          </div>
+
+          <div id="resume-file-card" class="resume-file-card hidden rounded-lg px-4 py-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex min-w-0 items-start gap-3">
+                <span class="text-2xl leading-none" aria-hidden="true">📄</span>
+                <div class="min-w-0">
+                  <p id="resume-file-name" class="truncate text-sm font-semibold text-stem-900"></p>
+                  <p id="resume-file-size" class="mt-0.5 text-xs text-slate-500"></p>
+                  <span class="mt-2 inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Uploaded ✓</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                id="resume-remove-file-btn"
+                class="shrink-0 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
+              >
+                ✕ Remove File
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <details id="resume-paste-details" class="mt-4 rounded-lg border border-slate-200 bg-slate-50/50">
+          <summary class="cursor-pointer px-4 py-3 text-sm font-medium text-stem-900">Or paste your resume bio / summary here</summary>
+          <div class="border-t border-slate-200 px-4 py-3">
+            <textarea id="resume-paste" class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm leading-relaxed focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" rows="5" placeholder="Paste resume summary, experience bullets, or bio..."></textarea>
+            <p class="mt-2 text-xs text-slate-500">Highlights extract automatically when you click away from this field.</p>
+          </div>
+        </details>
+
+        <div class="mt-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Resume Highlights</p>
+            <button type="button" id="add-highlight-btn" class="text-xs font-semibold text-stem-700 hover:text-stem-900">+ Add highlight</button>
+          </div>
+          <div id="resume-highlights" class="mt-2 flex flex-wrap gap-2"></div>
+            <p id="resume-highlights-empty" class="mt-2 text-xs text-slate-500">Upload a resume or paste a bio to generate highlight tags.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-slate-200 bg-white px-5 py-4 sm:px-6">
+      <button
+        type="button"
+        id="profile-save-continue-btn"
+        class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-stem-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-stem-800 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
+      >
+        Save &amp; Continue to Search
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+      </button>
+    </div>
+  </aside>
+
+  <div id="toast" class="toast fixed bottom-6 left-1/2 z-[60] hidden rounded-lg bg-stem-900 px-5 py-3 text-sm font-medium text-white shadow-lg" role="alert" aria-live="polite"></div>
 
   <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
     STEM Alumni Networking Toolkit &mdash; for Foothill and De Anza community college students.
@@ -908,7 +980,10 @@
 
     var BOOKMARKS_STORAGE_KEY = 'stemNetworkingBookmarks';
     var STUDENT_PROFILE_STORAGE_KEY = 'stemStudentProfile';
-    var currentSearchContext = { pillars: [], subTags: [], searchLabel: '', schools: [] };
+    var CUSTOM_TAGS_STORAGE_KEY = 'stemCustomSearchTags';
+    var currentSearchContext = { pillars: [], subTags: [], customTags: [], searchLabel: '', schools: [] };
+    var currentStashContext = { reasonForConnecting: '' };
+    var customSearchTags = [];
     var studentProfile = {
       fullName: '',
       college: '',
@@ -916,6 +991,8 @@
       major: '',
       passion: '',
       resumeText: '',
+      resumeFile: null,
+      resumeSource: null,
       highlights: []
     };
 
@@ -1079,6 +1156,8 @@
     }
 
     function initPillarSelection() {
+      loadCustomSearchTags();
+      renderCustomTags();
       renderPillarGrid();
 
       document.getElementById('pillar-grid').addEventListener('click', function (e) {
@@ -1092,6 +1171,81 @@
         if (!card) return;
         togglePillar(card.getAttribute('data-pillar'));
       });
+
+      document.getElementById('custom-tag-add-btn').addEventListener('click', addCustomTagFromInput);
+      document.getElementById('custom-tag-input').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addCustomTagFromInput();
+        }
+      });
+      document.getElementById('custom-tags-list').addEventListener('click', function (e) {
+        var removeBtn = e.target.closest('[data-remove-custom-tag]');
+        if (!removeBtn) return;
+        removeCustomTag(Number(removeBtn.getAttribute('data-remove-custom-tag')));
+      });
+    }
+
+    function loadCustomSearchTags() {
+      try {
+        var stored = localStorage.getItem(CUSTOM_TAGS_STORAGE_KEY);
+        customSearchTags = stored ? JSON.parse(stored) : [];
+        if (!Array.isArray(customSearchTags)) customSearchTags = [];
+      } catch (err) {
+        customSearchTags = [];
+      }
+    }
+
+    function saveCustomSearchTags() {
+      localStorage.setItem(CUSTOM_TAGS_STORAGE_KEY, JSON.stringify(customSearchTags));
+    }
+
+    function renderCustomTags() {
+      var container = document.getElementById('custom-tags-list');
+      if (!container) return;
+
+      if (!customSearchTags.length) {
+        container.innerHTML = '';
+        return;
+      }
+
+      container.innerHTML = customSearchTags.map(function (tag, index) {
+        return (
+          '<span class="highlight-tag">' +
+            '<span class="highlight-tag-label">' + escapeHtml(tag) + '</span>' +
+            '<button type="button" class="highlight-tag-remove" data-remove-custom-tag="' + index + '" aria-label="Remove ' + escapeHtml(tag) + '">&times;</button>' +
+          '</span>'
+        );
+      }).join('');
+    }
+
+    function addCustomTagFromInput() {
+      var input = document.getElementById('custom-tag-input');
+      var tag = trimField(input.value);
+      if (!tag) return;
+
+      var exists = customSearchTags.some(function (item) {
+        return item.toLowerCase() === tag.toLowerCase();
+      });
+      if (exists) {
+        input.value = '';
+        return;
+      }
+
+      customSearchTags.push(tag);
+      saveCustomSearchTags();
+      renderCustomTags();
+      input.value = '';
+    }
+
+    function removeCustomTag(index) {
+      customSearchTags.splice(index, 1);
+      saveCustomSearchTags();
+      renderCustomTags();
+    }
+
+    function getCustomSearchTags() {
+      return customSearchTags.slice();
     }
 
     function getSelectedPillars() {
@@ -1133,6 +1287,10 @@
         }
       });
 
+      getCustomSearchTags().forEach(function (tag) {
+        addTerm(tag);
+      });
+
       return terms;
     }
 
@@ -1156,7 +1314,27 @@
       if (subTagLabels.length > 0) {
         label += ' (' + subTagLabels.join(', ') + ')';
       }
+
+      var customTags = getCustomSearchTags();
+      if (customTags.length > 0) {
+        label += ' + ' + customTags.join(', ');
+      }
       return label;
+    }
+
+    function revealStashStep() {
+      document.getElementById('stash-placeholder').classList.add('hidden');
+      document.getElementById('bookmark-form').classList.remove('hidden');
+    }
+
+    function normalizeReasonPhrase(reason) {
+      reason = trimField(reason);
+      if (!reason) return 'was inspired by your career path';
+      reason = reason.replace(/[.!?]+$/, '');
+      if (/^[A-Z]/.test(reason)) {
+        reason = reason.charAt(0).toLowerCase() + reason.slice(1);
+      }
+      return reason;
     }
 
     function formatSchoolList(schools) {
@@ -1275,11 +1453,13 @@
             major: parsed.major || '',
             passion: parsed.passion || '',
             resumeText: parsed.resumeText || '',
+            resumeFile: parsed.resumeFile && parsed.resumeFile.name ? parsed.resumeFile : null,
+            resumeSource: parsed.resumeSource || null,
             highlights: Array.isArray(parsed.highlights) ? parsed.highlights : []
           };
         }
       } catch (err) {
-        studentProfile = { fullName: '', college: '', collegeOther: '', major: '', passion: '', resumeText: '', highlights: [] };
+        studentProfile = { fullName: '', college: '', collegeOther: '', major: '', passion: '', resumeText: '', resumeFile: null, resumeSource: null, highlights: [] };
       }
     }
 
@@ -1289,29 +1469,57 @@
 
     function getCollegeLabel() {
       if (studentProfile.college === 'Other') {
-        return studentProfile.collegeOther || 'community college';
+        return trimField(studentProfile.collegeOther) || 'community college';
       }
-      return studentProfile.college || '';
+      return trimField(studentProfile.college);
     }
 
     function getCollegeShort() {
       var college = getCollegeLabel();
+      if (studentProfile.college === 'Other') {
+        return college;
+      }
       if (college.indexOf('Foothill') !== -1) return 'Foothill';
       if (college.indexOf('De Anza') !== -1) return 'De Anza';
-      return college.split(' ')[0] || college;
+      return college;
+    }
+
+    function trimField(value) {
+      return (value || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function cleanPunctuation(text) {
+      return text
+        .replace(/\s+([.,!?;:])/g, '$1')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+    }
+
+    function getHumanHighlight() {
+      for (var i = 0; i < studentProfile.highlights.length; i++) {
+        var highlight = trimField(studentProfile.highlights[i]);
+        if (highlight && !/^tools:\s/i.test(highlight)) {
+          return highlight;
+        }
+      }
+      return '';
+    }
+
+    function formatImpactArea(searchLabel) {
+      return simplifySearchLabel(searchLabel);
     }
 
     function getStudentIntro() {
-      var firstName = studentProfile.fullName ? studentProfile.fullName.trim().split(/\s+/)[0] : '';
+      var firstName = studentProfile.fullName ? trimField(studentProfile.fullName).split(/\s+/)[0] : '';
       var college = getCollegeLabel();
       var collegeShort = getCollegeShort();
-      var major = studentProfile.major || '';
-      var passion = studentProfile.passion || 'non-corporate STEM paths';
-      var highlight = studentProfile.highlights.length ? studentProfile.highlights[0] : '';
-      var pitchBackground = firstName && major && collegeShort
-        ? firstName + ', a ' + major + ' student at ' + college
-        : (major ? 'a ' + major + ' student at ' + (college || 'community college') : 'a community college student exploring STEM careers');
-      var pitchGoal = passion || 'learning how professionals like you built their path';
+      var major = trimField(studentProfile.major);
+      var passion = trimField(studentProfile.passion) || 'non-corporate STEM paths';
+      var highlight = getHumanHighlight();
+      var pitchBackground = firstName && major && college
+        ? firstName
+        : (firstName || '');
+      var pitchGoal = getPitchFieldGoal();
 
       return {
         firstName: firstName,
@@ -1324,6 +1532,18 @@
         pitchBackground: pitchBackground,
         pitchGoal: pitchGoal
       };
+    }
+
+    function getPitchFieldGoal() {
+      if (currentSearchContext.searchLabel) {
+        return formatImpactArea(currentSearchContext.searchLabel);
+      }
+      return trimField(studentProfile.passion) || 'non-corporate STEM paths';
+    }
+
+    function hasPitchProfileData() {
+      var intro = getStudentIntro();
+      return !!(intro.firstName || intro.major || intro.passion);
     }
 
     function simplifySearchLabel(searchLabel) {
@@ -1364,15 +1584,23 @@
         if (key === 'highlights') return;
         field.value = studentProfile[key] || '';
       });
+
+      var pasteField = document.getElementById('resume-paste');
+      if (pasteField) {
+        pasteField.value = studentProfile.resumeSource === 'paste' ? (studentProfile.resumeText || '') : '';
+      }
+
       toggleCollegeOtherVisibility();
       updateProfileStatusPill();
+      renderResumeUploadState();
+      renderHighlightTags();
       syncPitchFieldsFromProfile(false);
     }
 
     function readProfileFromField(field) {
       var key = field.getAttribute('data-profile-field');
       if (!key || key === 'highlights') return;
-      studentProfile[key] = field.value;
+      studentProfile[key] = trimField(field.value);
     }
 
     function onProfileFieldChange(field) {
@@ -1407,10 +1635,11 @@
 
       empty.classList.add('hidden');
       container.innerHTML = studentProfile.highlights.map(function (highlight, index) {
+        var editable = highlight === 'New highlight' ? ' contenteditable="true"' : '';
         return (
           '<span class="highlight-tag" data-highlight-index="' + index + '">' +
-            '<input type="text" class="highlight-tag-input" value="' + escapeHtml(highlight) + '" aria-label="Resume highlight ' + (index + 1) + '" />' +
-            '<button type="button" class="highlight-tag-remove" data-remove-highlight="' + index + '" aria-label="Remove highlight">&times;</button>' +
+            '<span class="highlight-tag-label"' + editable + '>' + escapeHtml(highlight) + '</span>' +
+            '<button type="button" class="highlight-tag-remove" data-remove-highlight="' + index + '" aria-label="Remove ' + escapeHtml(highlight) + '">&times;</button>' +
           '</span>'
         );
       }).join('');
@@ -1428,52 +1657,71 @@
     function extractResumeHighlights(text) {
       if (!text || !text.trim()) return [];
 
-      var highlights = [];
+      var tags = [];
       var seen = {};
+
+      function addTag(tag) {
+        tag = trimField(tag);
+        if (!tag || tag.length < 3) return;
+        var key = tag.toLowerCase();
+        if (seen[key]) return;
+        seen[key] = true;
+        tags.push(tag);
+      }
+
+      var leadershipPatterns = [
+        { pattern: /STEM\s*(club|mentor|mentorship)/i, label: 'STEM Mentorship' },
+        { pattern: /peer\s*mentor/i, label: 'Peer Mentorship' },
+        { pattern: /student\s*government|club\s*officer|ASUC/i, label: 'Student Leadership' },
+        { pattern: /research\s*assistant|undergraduate\s*research/i, label: 'Research Experience' },
+        { pattern: /teaching\s*assistant|tutor(ing)?/i, label: 'Tutoring' },
+        { pattern: /volunteer/i, label: 'Community Service' },
+        { pattern: /\bintern(ship)?\b/i, label: 'Internship Experience' },
+        { pattern: /Phi Theta Kappa/i, label: 'Phi Theta Kappa' }
+      ];
+
+      leadershipPatterns.forEach(function (item) {
+        if (item.pattern.test(text)) {
+          addTag(item.label);
+        }
+      });
+
+      if (/data analys/i.test(text)) addTag('Data Analysis');
+      if (/machine learning|deep learning/i.test(text)) addTag('Machine Learning');
+      if (/science policy|public policy/i.test(text)) addTag('Science Policy');
+      if (/community outreach|STEM outreach/i.test(text)) addTag('Community Outreach');
+
+      var skillPattern = /\b(Python|R|SQL|Java|JavaScript|TypeScript|Excel|MATLAB|Tableau|GIS|TensorFlow|Pandas|NumPy|React|Git)\b/gi;
+      var match;
+      while ((match = skillPattern.exec(text)) !== null && tags.length < 6) {
+        addTag(match[0].charAt(0).toUpperCase() + match[0].slice(1).toLowerCase());
+      }
+
       var lines = text.split(/\n+/).map(function (line) {
         return line.replace(/^[-•*]\s*/, '').replace(/\s+/g, ' ').trim();
       }).filter(function (line) {
         return line.length > 12;
       });
 
-      var actionPattern = /\b(led|managed|developed|researched|president|captain|intern|volunteer|tutor|built|designed|analyzed|co-founded|organized|mentored|created|implemented|facilitated)\b/i;
+      var actionPattern = /\b(led|managed|developed|researched|built|designed|analyzed|organized|mentored|created|implemented|facilitated)\b/i;
       lines.forEach(function (line) {
-        if (line.length <= 120 && actionPattern.test(line)) {
-          var snippet = line.length > 90 ? line.slice(0, 87) + '...' : line;
-          var key = snippet.toLowerCase();
-          if (!seen[key]) {
-            seen[key] = true;
-            highlights.push(snippet);
-          }
+        if (tags.length >= 5) return;
+        if (line.length > 120 || !actionPattern.test(line)) return;
+
+        var cleaned = line
+          .replace(/\([^)]*\)/g, '')
+          .replace(/\b(led|managed|developed|researched|built|designed|analyzed|organized|mentored|created|implemented|facilitated)\b/gi, '')
+          .replace(/^[-–—:,.\s]+|[-–—:,.\s]+$/g, '')
+          .trim();
+
+        if (cleaned.length >= 8 && cleaned.length <= 48) {
+          addTag(cleaned.split(/\s+/).slice(0, 4).map(function (word) {
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+          }).join(' '));
         }
       });
 
-      var toolPattern = /\b(Python|R|SQL|Java|JavaScript|TypeScript|Excel|MATLAB|Tableau|GIS|TensorFlow|Pandas|NumPy|JavaScript|React|Git)\b/gi;
-      var tools = [];
-      var match;
-      while ((match = toolPattern.exec(text)) !== null && tools.length < 4) {
-        var tool = match[0];
-        if (tools.map(function (t) { return t.toLowerCase(); }).indexOf(tool.toLowerCase()) === -1) {
-          tools.push(tool);
-        }
-      }
-      if (tools.length) {
-        highlights.push('Tools: ' + tools.join(', '));
-      }
-
-      var leadershipPattern = /\b(STEM Club|student government|peer mentor|research assistant|teaching assistant|club officer|ASUC|Phi Theta Kappa)\b/i;
-      lines.forEach(function (line) {
-        if (leadershipPattern.test(line) && highlights.length < 3) {
-          var snippet = line.length > 90 ? line.slice(0, 87) + '...' : line;
-          var key = snippet.toLowerCase();
-          if (!seen[key]) {
-            seen[key] = true;
-            highlights.push(snippet);
-          }
-        }
-      });
-
-      return highlights.slice(0, 3);
+      return tags.slice(0, 5);
     }
 
     function extractTextFromPdf(file) {
@@ -1513,38 +1761,126 @@
       return Promise.reject(new Error('Unsupported file type'));
     }
 
-    function processResumeText(text) {
-      studentProfile.resumeText = text;
-      var extracted = extractResumeHighlights(text);
-      if (extracted.length) {
-        studentProfile.highlights = extracted;
+    function formatFileSize(bytes) {
+      if (!bytes && bytes !== 0) return '';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function renderResumeUploadState() {
+      var dropzone = document.getElementById('resume-dropzone');
+      var fileCard = document.getElementById('resume-file-card');
+      var fileNameEl = document.getElementById('resume-file-name');
+      var fileSizeEl = document.getElementById('resume-file-size');
+      if (!dropzone || !fileCard) return;
+
+      if (studentProfile.resumeFile && studentProfile.resumeFile.name) {
+        dropzone.classList.add('hidden');
+        fileCard.classList.remove('hidden');
+        if (fileNameEl) fileNameEl.textContent = studentProfile.resumeFile.name;
+        if (fileSizeEl) fileSizeEl.textContent = formatFileSize(studentProfile.resumeFile.size);
+      } else {
+        dropzone.classList.remove('hidden');
+        fileCard.classList.add('hidden');
       }
+    }
+
+    function processResumeFile(file) {
+      return extractTextFromFile(file).then(function (text) {
+        studentProfile.resumeFile = { name: file.name, size: file.size };
+        applyHighlightsFromText(text, { fromFile: true, silent: true });
+        renderResumeUploadState();
+      });
+    }
+
+    function removeUploadedResume() {
+      var hadFile = !!(studentProfile.resumeFile && studentProfile.resumeFile.name);
+      studentProfile.resumeFile = null;
+      studentProfile.highlights = [];
+
+      if (studentProfile.resumeSource === 'file') {
+        studentProfile.resumeText = '';
+        studentProfile.resumeSource = null;
+      }
+
+      document.getElementById('resume-file-input').value = '';
+      var pasteDetails = document.getElementById('resume-paste-details');
+      if (pasteDetails) pasteDetails.removeAttribute('open');
+
       saveStudentProfile();
+      renderResumeUploadState();
+      renderHighlightTags();
       syncProfileFieldsToUI();
       refreshPersonalizedTemplates();
-      showToast(extracted.length ? 'Extracted ' + extracted.length + ' resume highlights.' : 'Resume saved. Add highlights manually if needed.');
+
+      if (hadFile) {
+        showToast('Resume file removed.');
+      }
+    }
+
+    function applyHighlightsFromText(text, options) {
+      options = options || {};
+
+      if (options.fromPaste) {
+        studentProfile.resumeText = text;
+        studentProfile.resumeSource = 'paste';
+      } else if (options.fromFile) {
+        studentProfile.resumeText = text;
+        studentProfile.resumeSource = 'file';
+      }
+
+      var extracted = extractResumeHighlights(text);
+      if (options.fromFile) {
+        studentProfile.highlights = extracted;
+      } else if (extracted.length) {
+        studentProfile.highlights = extracted;
+      }
+
+      saveStudentProfile();
+      renderHighlightTags();
+      refreshPersonalizedTemplates();
+
+      if (!options.silent && extracted.length) {
+        showToast('Extracted ' + extracted.length + ' resume highlights.');
+      }
     }
 
     function syncPitchFieldsFromProfile(updateOutput) {
       var intro = getStudentIntro();
-      var backgroundField = document.getElementById('pitch-background');
+      var nameField = document.getElementById('pitch-background');
       var passionField = document.getElementById('pitch-passion');
       var goalField = document.getElementById('pitch-goal');
 
-      if (backgroundField && intro.pitchBackground) backgroundField.value = intro.pitchBackground;
+      if (nameField && intro.pitchBackground) nameField.value = intro.pitchBackground;
       if (passionField && intro.passion) passionField.value = intro.passion;
-      if (goalField && intro.pitchGoal) goalField.value = intro.pitchGoal;
+      if (goalField) goalField.value = intro.pitchGoal;
 
-      if (updateOutput !== false) {
-        var pitchOutput = document.getElementById('pitch-output');
-        if (pitchOutput && !pitchOutput.classList.contains('hidden')) {
-          document.getElementById('pitch-script').value = buildElevatorPitch(
-            backgroundField ? backgroundField.value.trim() : '',
-            passionField ? passionField.value.trim() : '',
-            goalField ? goalField.value.trim() : ''
-          );
-        }
+      if (updateOutput !== false && hasPitchProfileData()) {
+        renderElevatorPitch();
       }
+    }
+
+    function renderElevatorPitch() {
+      var nameField = document.getElementById('pitch-background');
+      var passionField = document.getElementById('pitch-passion');
+      var goalField = document.getElementById('pitch-goal');
+      var pitchOutput = document.getElementById('pitch-output');
+      var pitchScript = document.getElementById('pitch-script');
+
+      if (!nameField || !passionField || !goalField || !pitchOutput || !pitchScript) return;
+
+      if (!hasPitchProfileData()) {
+        pitchOutput.classList.add('hidden');
+        return;
+      }
+
+      pitchScript.value = buildElevatorPitch(
+        nameField.value,
+        passionField.value,
+        goalField.value
+      );
+      pitchOutput.classList.remove('hidden');
     }
 
     function refreshPersonalizedTemplates() {
@@ -1553,29 +1889,54 @@
       if (currentSearchContext.searchLabel && !templatesContent.classList.contains('hidden')) {
         generateTemplates(
           currentSearchContext.searchLabel,
-          currentSearchContext.schools.length ? currentSearchContext.schools : getSelectedSchools()
+          currentSearchContext.schools.length ? currentSearchContext.schools : getSelectedSchools(),
+          currentStashContext.reasonForConnecting
         );
       }
     }
 
-    function toggleProfileDrawer(forceOpen) {
-      var drawer = document.getElementById('profile-drawer');
+    function openProfilePanel() {
+      var panel = document.getElementById('profile-panel');
+      var backdrop = document.getElementById('profile-panel-backdrop');
       var pill = document.getElementById('profile-status-pill');
-      if (!drawer || !pill) return;
+      if (!panel || !backdrop) return;
 
-      var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !drawer.classList.contains('open');
-      drawer.classList.toggle('open', shouldOpen);
-      drawer.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
-      pill.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+      panel.classList.add('open');
+      backdrop.classList.add('open');
+      panel.setAttribute('aria-hidden', 'false');
+      backdrop.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('profile-panel-open');
+      if (pill) pill.setAttribute('aria-expanded', 'true');
     }
 
-    function openProfileSection() {
-      switchTab('start');
-      toggleProfileDrawer(false);
-      var section = document.getElementById('student-profile-section');
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+    function closeProfilePanel() {
+      var panel = document.getElementById('profile-panel');
+      var backdrop = document.getElementById('profile-panel-backdrop');
+      var pill = document.getElementById('profile-status-pill');
+      if (!panel || !backdrop) return;
+
+      panel.classList.remove('open');
+      backdrop.classList.remove('open');
+      panel.setAttribute('aria-hidden', 'true');
+      backdrop.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('profile-panel-open');
+      if (pill) pill.setAttribute('aria-expanded', 'false');
+    }
+
+    function readProfileFromUI() {
+      document.querySelectorAll('.profile-sync-field').forEach(function (field) {
+        readProfileFromField(field);
+      });
+    }
+
+    function saveProfileAndContinueToSearch() {
+      readProfileFromUI();
+      saveStudentProfile();
+      updateProfileStatusPill();
+      refreshPersonalizedTemplates();
+      closeProfilePanel();
+      switchTab('search');
+      showToast(isProfileComplete() ? 'Profile saved. Ready to find alumni!' : 'Profile saved. Add more details anytime from the header.');
     }
 
     function initStudentProfile() {
@@ -1593,15 +1954,17 @@
         });
       });
 
-      document.getElementById('profile-status-pill').addEventListener('click', function () {
-        if (isProfileComplete()) {
-          openProfileSection();
-        } else {
-          toggleProfileDrawer();
+      document.getElementById('profile-status-pill').addEventListener('click', openProfilePanel);
+
+      document.getElementById('profile-panel-close').addEventListener('click', closeProfilePanel);
+      document.getElementById('profile-panel-backdrop').addEventListener('click', closeProfilePanel);
+      document.getElementById('profile-save-continue-btn').addEventListener('click', saveProfileAndContinueToSearch);
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && document.getElementById('profile-panel').classList.contains('open')) {
+          closeProfilePanel();
         }
       });
-
-      document.getElementById('profile-drawer-goto').addEventListener('click', openProfileSection);
 
       document.getElementById('resume-browse-btn').addEventListener('click', function () {
         document.getElementById('resume-file-input').click();
@@ -1610,7 +1973,7 @@
       document.getElementById('resume-file-input').addEventListener('change', function (e) {
         var file = e.target.files[0];
         if (!file) return;
-        extractTextFromFile(file).then(processResumeText).catch(function () {
+        processResumeFile(file).catch(function () {
           showToast('Could not read that file. Try .txt or paste your resume instead.');
         });
         e.target.value = '';
@@ -1629,34 +1992,42 @@
         dropzone.classList.remove('dragover');
         var file = e.dataTransfer.files[0];
         if (!file) return;
-        extractTextFromFile(file).then(processResumeText).catch(function () {
+        processResumeFile(file).catch(function () {
           showToast('Could not read that file. Try .txt or paste your resume instead.');
         });
       });
 
-      document.getElementById('extract-highlights-btn').addEventListener('click', function () {
-        var text = document.getElementById('resume-paste').value.trim();
-        if (!text) {
-          showToast('Paste resume text first.');
-          return;
-        }
-        processResumeText(text);
+      document.getElementById('resume-remove-file-btn').addEventListener('click', removeUploadedResume);
+
+      document.getElementById('resume-paste').addEventListener('blur', function () {
+        var text = this.value.trim();
+        if (!text) return;
+        applyHighlightsFromText(text, { fromPaste: true, silent: true });
       });
 
       document.getElementById('add-highlight-btn').addEventListener('click', function () {
         var next = studentProfile.highlights.concat(['New highlight']);
         setHighlights(next);
+        var container = document.getElementById('resume-highlights');
+        var newTag = container.querySelector('[data-highlight-index="' + (next.length - 1) + '"] .highlight-tag-label');
+        if (newTag) {
+          newTag.focus();
+          document.execCommand('selectAll', false, null);
+        }
       });
 
-      document.getElementById('resume-highlights').addEventListener('input', function (e) {
-        var input = e.target.closest('.highlight-tag-input');
-        if (!input) return;
-        var tag = input.closest('[data-highlight-index]');
+      document.getElementById('resume-highlights').addEventListener('blur', function (e) {
+        var label = e.target.closest('.highlight-tag-label[contenteditable="true"]');
+        if (!label) return;
+        var tag = label.closest('[data-highlight-index]');
         var index = Number(tag.getAttribute('data-highlight-index'));
-        studentProfile.highlights[index] = input.value;
+        var value = trimField(label.textContent);
+        if (!value || value === 'New highlight') return;
+        studentProfile.highlights[index] = value;
         saveStudentProfile();
+        renderHighlightTags();
         refreshPersonalizedTemplates();
-      });
+      }, true);
 
       document.getElementById('resume-highlights').addEventListener('click', function (e) {
         var removeBtn = e.target.closest('[data-remove-highlight]');
@@ -1667,6 +2038,8 @@
         renderHighlightTags();
         refreshPersonalizedTemplates();
       });
+
+      renderElevatorPitch();
     }
 
     function switchTab(tabName) {
@@ -1687,12 +2060,11 @@
       });
     });
 
-    document.getElementById('start-search-btn').addEventListener('click', function () {
-      switchTab('search');
-    });
+    document.getElementById('complete-profile-btn').addEventListener('click', openProfilePanel);
 
-    function getTemplatesForBookmark(name, searchLabel, schools) {
+    function getTemplatesForBookmark(name, searchLabel, schools, reasonForConnecting) {
       var schoolLabel = formatSchoolList(schools.length ? schools : getSelectedSchools());
+      var reason = reasonForConnecting || currentStashContext.reasonForConnecting;
       var templatesGenerated = !templatesContent.classList.contains('hidden');
 
       if (templatesGenerated) {
@@ -1704,8 +2076,8 @@
       }
 
       return {
-        connection: buildConnectionNote(searchLabel, schoolLabel),
-        followup: buildFollowUpMessage(searchLabel, schoolLabel).replace('[Name]', name),
+        connection: buildConnectionNote(searchLabel, schoolLabel, reason),
+        followup: buildFollowUpMessage(searchLabel, schoolLabel, reason).replace('[Name]', name),
         questions: buildQuestions(searchLabel).map(function (q, i) {
           return (i + 1) + '. ' + q;
         }).join('\n\n')
@@ -1784,17 +2156,16 @@
       );
     }
 
-    function buildElevatorPitch(background, passion, goal) {
+    function buildElevatorPitch(name, passion, goal) {
       var intro = getStudentIntro();
-      var bg = background || intro.pitchBackground;
-      var corePassion = passion || intro.passion || 'making STEM more accessible';
-      var currentGoal = goal || intro.pitchGoal;
-      var highlightLine = intro.highlight ? ' Recently, I\'ve been building skills in ' + intro.highlight + '.' : '';
+      var speakerName = trimField(name) || intro.firstName || 'there';
+      var major = intro.major || 'STEM';
+      var college = intro.college || 'community college';
+      var corePassion = trimField(passion) || intro.passion || 'making STEM more accessible';
+      var fieldGoal = trimField(goal) || getPitchFieldGoal();
 
-      return (
-        'Hi, thanks so much for meeting with me. I\'m ' + bg + '.' + highlightLine +
-        ' I\'m especially passionate about ' + corePassion + ', and right now I\'m focused on ' + currentGoal + '. ' +
-        'I\'d love to hear how you got started in your role and any advice you have for someone at my stage.'
+      return cleanPunctuation(
+        'Hi! I\'m ' + speakerName + ', currently studying ' + major + ' at ' + college + '. I\'m really passionate about ' + corePassion + ' and looking to learn more about career paths in ' + fieldGoal + '. I\'m excited to connect today to learn a bit about your journey and experience in the space.'
       );
     }
 
@@ -1865,9 +2236,11 @@
         var companyLine = bookmark.company
           ? '<p class="text-sm text-slate-600">' + escapeHtml(bookmark.company) + '</p>'
           : '';
-        var notesLine = bookmark.notes
-          ? '<p class="mt-2 text-xs text-slate-500"><span class="font-medium text-slate-600">Notes:</span> ' + escapeHtml(bookmark.notes) + '</p>'
-          : '';
+        var notesLine = bookmark.reasonForConnecting
+          ? '<p class="mt-2 text-sm leading-relaxed text-slate-700"><span class="font-medium text-slate-800">Connection hook:</span> ' + escapeHtml(bookmark.reasonForConnecting) + '</p>'
+          : (bookmark.notes
+            ? '<p class="mt-2 text-xs text-slate-500"><span class="font-medium text-slate-600">Notes:</span> ' + escapeHtml(bookmark.notes) + '</p>'
+            : '');
         var contextLine = (bookmark.searchLabel || bookmark.stemPath)
           ? '<p class="mt-2 text-xs text-stem-700">Saved while exploring: ' + escapeHtml(bookmark.searchLabel || bookmark.stemPath) + '</p>'
           : '';
@@ -1921,43 +2294,45 @@
       }, 2800);
     }
 
-    function buildConnectionNote(searchLabel, schoolLabel) {
+    function buildConnectionNote(searchLabel, schoolLabel, reasonForConnecting) {
       var intro = getStudentIntro();
-      var fieldPhrase = simplifySearchLabel(searchLabel);
+      var college = intro.college || schoolLabel;
+      var reasonPhrase = normalizeReasonPhrase(reasonForConnecting);
       var note;
 
-      if (intro.firstName && intro.major && intro.collegeShort) {
-        note = 'Hi [Name], I\'m ' + intro.firstName + ', a ' + intro.major + ' student at ' + intro.collegeShort + ' focused on ' + intro.passion + '. ';
-        note += 'As a fellow CC alum working in ' + fieldPhrase + ', I\'d love to connect and follow your work!';
+      if (intro.firstName && intro.major && college) {
+        note = 'Hi [Name], I\'m ' + intro.firstName + ', a ' + intro.major + ' student at ' + college + '. I came across your profile and ' + reasonPhrase + '. Would love to connect and follow your work!';
       } else {
-        note = 'Hi [Name], I\'m a ' + schoolLabel + ' student exploring ' + searchLabel + '. I\'d love to connect and learn from your experience. Thank you!';
+        note = 'Hi [Name], I\'m a ' + schoolLabel + ' student exploring ' + formatImpactArea(searchLabel) + '. I came across your profile and ' + reasonPhrase + '. Would love to connect and follow your work!';
       }
 
       if (note.length > 200) {
-        note = 'Hi [Name], I\'m ' + (intro.firstName || 'a') + ', a ' + (intro.major || 'STEM') + ' student at ' + (intro.collegeShort || schoolLabel) + ' exploring ' + fieldPhrase + '. Would love to connect!';
+        note = 'Hi [Name], I\'m ' + (intro.firstName || 'a student') + ', a ' + (intro.major || 'STEM') + ' student at ' + (intro.collegeShort || schoolLabel) + '. I came across your profile and ' + reasonPhrase + '. Would love to connect!';
+      }
+      if (note.length > 200) {
+        note = 'Hi [Name], I\'m ' + (intro.firstName || 'a') + ', a ' + (intro.major || 'STEM') + ' student. I came across your profile and would love to connect!';
       }
       if (note.length > 200) {
         note = note.slice(0, 197) + '...';
       }
-      return note;
+      return cleanPunctuation(note);
     }
 
-    function buildFollowUpMessage(searchLabel, schoolLabel) {
+    function buildFollowUpMessage(searchLabel, schoolLabel, reasonForConnecting) {
       var intro = getStudentIntro();
-      var fieldPhrase = simplifySearchLabel(searchLabel);
-      var opener = intro.firstName && intro.major
-        ? 'Hi [Name], thanks for connecting! I\'m ' + intro.firstName + ', a ' + intro.major + ' student at ' + (intro.collegeShort || schoolLabel) + ' focused on ' + intro.passion + '. '
-        : 'Hi [Name], thanks for connecting! I\'m a ' + schoolLabel + ' student exploring careers in ' + searchLabel + '. ';
+      var impactArea = formatImpactArea(searchLabel);
+      var college = intro.college || schoolLabel;
+      var major = intro.major || 'STEM';
+      var reasonPhrase = normalizeReasonPhrase(reasonForConnecting);
+      var message;
 
-      if (intro.highlight) {
-        opener = 'Hi [Name], thanks for connecting! I\'m ' + intro.firstName + ', a ' + intro.major + ' student at ' + (intro.collegeShort || schoolLabel) + ' with a background in ' + intro.highlight + '. ';
+      if (college && intro.major) {
+        message = 'Hi [Name], thanks for connecting! I\'m currently studying ' + major + ' at ' + college + '. I reached out because ' + reasonPhrase + '. If you\'re open to it, I\'d love to ask a few quick questions about your journey in ' + impactArea + ' and any advice you might have. No worries if your schedule is packed, but I\'d be grateful for 15 minutes of your time. Thanks so much!';
+      } else {
+        message = 'Hi [Name], thanks for connecting! I\'m a ' + schoolLabel + ' student exploring paths in ' + impactArea + '. I reached out because ' + reasonPhrase + '. If you\'re open to it, I\'d love to ask a few quick questions about your journey. No worries if your schedule is packed, but I\'d be grateful for 15 minutes of your time. Thanks so much!';
       }
 
-      return (
-        opener +
-        'Would you be open to a brief 15–20 minute informational chat about your path in ' + fieldPhrase + '? I\'d love to learn from your experience—and with your permission, ' +
-        'I\'d like to record the conversation for my personal notes only. Thank you for considering!'
-      );
+      return cleanPunctuation(message);
     }
 
     function buildQuestions(searchLabel) {
@@ -1985,14 +2360,14 @@
       countEl.textContent = '(' + len + '/200)';
     }
 
-    function generateTemplates(searchLabel, schools) {
+    function generateTemplates(searchLabel, schools, reasonForConnecting) {
       var schoolLabel = formatSchoolList(schools);
-      var connectionNote = buildConnectionNote(searchLabel, schoolLabel);
+      var connectionNote = buildConnectionNote(searchLabel, schoolLabel, reasonForConnecting);
 
       document.getElementById('template-connection').value = connectionNote;
       updateCharCount(connectionNote);
 
-      document.getElementById('template-followup').value = buildFollowUpMessage(searchLabel, schoolLabel);
+      document.getElementById('template-followup').value = buildFollowUpMessage(searchLabel, schoolLabel, reasonForConnecting);
 
       var questions = buildQuestions(searchLabel);
       var questionsHtml = '<ol class="list-decimal space-y-3 pl-5">';
@@ -2035,6 +2410,7 @@
       currentSearchContext = {
         pillars: pillars.slice(),
         subTags: subTags.slice(),
+        customTags: getCustomSearchTags().slice(),
         searchLabel: searchLabel,
         primaryPillarId: primaryPillarId,
         schools: schools.slice()
@@ -2051,9 +2427,8 @@
       searchPlaceholder.classList.add('hidden');
       searchResult.classList.remove('hidden');
 
-      generateTemplates(searchLabel, schools);
-      templatesPlaceholder.classList.add('hidden');
-      templatesContent.classList.remove('hidden');
+      revealStashStep();
+      syncPitchFieldsFromProfile(true);
     });
 
     bookmarkForm.addEventListener('submit', function (e) {
@@ -2063,22 +2438,32 @@
       var title = document.getElementById('bookmark-title').value.trim();
       var company = document.getElementById('bookmark-company').value.trim();
       var linkedinUrl = document.getElementById('bookmark-url').value.trim();
-      var customDescription = document.getElementById('bookmark-description').value.trim();
-      var notes = document.getElementById('bookmark-notes').value.trim();
+      var reasonForConnecting = document.getElementById('bookmark-reason').value.trim();
       var pillars = currentSearchContext.pillars.length ? currentSearchContext.pillars : getSelectedPillars();
       var searchLabel = currentSearchContext.searchLabel || formatSelectionLabel(pillars, getSelectedSubTags());
       var schools = currentSearchContext.schools.length ? currentSearchContext.schools : getSelectedSchools();
       var profile = getCombinedProfile(pillars);
-      var jobDescription = customDescription || profile.description;
+      var jobDescription = profile.description;
 
       if (!name || !title) {
         showBookmarkMessage('Please enter at least a name and job title.', true);
         return;
       }
 
+      if (!reasonForConnecting) {
+        showBookmarkMessage('Please share what caught your eye about this person.', true);
+        return;
+      }
+
       if (linkedinUrl && !/^https?:\/\//i.test(linkedinUrl)) {
         linkedinUrl = 'https://' + linkedinUrl;
       }
+
+      currentStashContext.reasonForConnecting = reasonForConnecting;
+
+      generateTemplates(searchLabel, schools, reasonForConnecting);
+      templatesPlaceholder.classList.add('hidden');
+      templatesContent.classList.remove('hidden');
 
       var bookmarks = loadBookmarks();
       bookmarks.unshift({
@@ -2090,17 +2475,21 @@
         jobDescription: jobDescription,
         searchLabel: searchLabel,
         schools: schools.slice(),
-        notes: notes,
+        reasonForConnecting: reasonForConnecting,
         outreachStatus: 'not-contacted',
-        templates: getTemplatesForBookmark(name, searchLabel, schools),
+        templates: getTemplatesForBookmark(name, searchLabel, schools, reasonForConnecting),
         savedAt: new Date().toISOString()
       });
 
       saveBookmarks(bookmarks);
       renderBookmarks();
       bookmarkForm.reset();
-      showToast('Profile saved to your pipeline.');
-      switchTab('radar');
+      showToast('Profile stashed. Your tailored notes are ready in Step 4.');
+
+      var step4 = document.getElementById('step4-section');
+      if (step4) {
+        step4.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     });
 
     bookmarksList.addEventListener('click', function (e) {
@@ -2161,14 +2550,7 @@
       document.getElementById('followup-output').classList.remove('hidden');
     });
 
-    document.getElementById('generate-pitch-btn').addEventListener('click', function () {
-      var background = document.getElementById('pitch-background').value.trim();
-      var passion = document.getElementById('pitch-passion').value.trim();
-      var goal = document.getElementById('pitch-goal').value.trim();
-
-      document.getElementById('pitch-script').value = buildElevatorPitch(background, passion, goal);
-      document.getElementById('pitch-output').classList.remove('hidden');
-    });
+    document.getElementById('generate-pitch-btn').addEventListener('click', renderElevatorPitch);
 
     renderBookmarks();
     initPillarSelection();
