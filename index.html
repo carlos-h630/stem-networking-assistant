@@ -24,6 +24,7 @@
       },
     };
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
     if (window.pdfjsLib) {
@@ -219,6 +220,58 @@
       background-color: #e0f2fe;
       color: #0369a1;
     }
+    .profile-status-pill.guest {
+      border-color: #e2e8f0;
+      background-color: #ffffff;
+      color: #64748b;
+    }
+    .auth-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      background: rgba(15, 23, 42, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+    .auth-modal-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+    .auth-modal {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      z-index: 71;
+      width: min(100% - 2rem, 24rem);
+      max-height: calc(100vh - 2rem);
+      overflow-y: auto;
+      transform: translate(-50%, -50%) scale(0.96);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+    }
+    .auth-modal.open {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+      visibility: visible;
+    }
+    .auth-tab[aria-selected="true"] {
+      border-bottom-color: #0284c7;
+      color: #0369a1;
+      font-weight: 600;
+    }
+    .auth-tab[aria-selected="false"] {
+      border-bottom-color: transparent;
+      color: #64748b;
+    }
+    body.auth-modal-open {
+      overflow: hidden;
+    }
+    .auth-submit-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-800">
@@ -242,15 +295,36 @@
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          id="profile-status-pill"
-          class="profile-status-pill incomplete shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
-          aria-expanded="false"
-          aria-controls="profile-panel"
-        >
-          👤 Set Up Profile
-        </button>
+        <div class="flex shrink-0 flex-col items-end gap-2">
+          <div id="auth-user-area" class="hidden flex-wrap items-center justify-end gap-2">
+            <span id="auth-user-label" class="max-w-[10rem] truncate text-xs font-medium text-slate-700 sm:max-w-[14rem]"></span>
+            <button
+              type="button"
+              id="auth-sign-out-btn"
+              class="rounded-full border border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
+            >
+              Sign Out
+            </button>
+          </div>
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <button
+              type="button"
+              id="auth-open-modal-btn"
+              class="rounded-full border border-stem-600 bg-stem-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
+            >
+              Sign In / Register
+            </button>
+            <button
+              type="button"
+              id="profile-status-pill"
+              class="profile-status-pill guest incomplete shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
+              aria-expanded="false"
+              aria-controls="profile-panel"
+            >
+              👤 Set Up Profile
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -851,6 +925,9 @@
     </div>
 
     <div id="student-profile-section" class="flex-1 overflow-y-auto px-5 py-5 sm:px-6">
+      <div id="profile-cloud-banner" class="mb-4 hidden rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-900" role="status">
+        Sign in to save your profile to the cloud.
+      </div>
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="sm:col-span-2">
           <label for="profile-full-name" class="mb-1.5 block text-sm font-medium text-slate-700">Full Name</label>
@@ -946,13 +1023,57 @@
     </div>
   </aside>
 
+  <!-- Auth modal -->
+  <div id="auth-modal-backdrop" class="auth-modal-backdrop" aria-hidden="true"></div>
+  <div
+    id="auth-modal"
+    class="auth-modal rounded-xl border border-slate-200 bg-white p-6 shadow-xl"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="auth-modal-title"
+    aria-hidden="true"
+  >
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h2 id="auth-modal-title" class="text-lg font-semibold text-stem-900">Welcome back</h2>
+        <p class="mt-1 text-sm text-slate-600">Sign in or create an account to sync your profile and saved mentors.</p>
+      </div>
+      <button type="button" id="auth-modal-close" class="rounded-md p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-stem-500" aria-label="Close sign in dialog">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+
+    <div class="mt-5 flex border-b border-slate-200" role="tablist" aria-label="Authentication mode">
+      <button type="button" id="auth-tab-signin" class="auth-tab flex-1 border-b-2 px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-inset" role="tab" aria-selected="true" aria-controls="auth-panel-signin">Sign In</button>
+      <button type="button" id="auth-tab-signup" class="auth-tab flex-1 border-b-2 px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-inset" role="tab" aria-selected="false" aria-controls="auth-panel-signup">Sign Up</button>
+    </div>
+
+    <div id="auth-alert" class="mt-4 hidden rounded-lg px-3 py-2.5 text-sm" role="alert"></div>
+
+    <form id="auth-form" class="mt-4 space-y-4">
+      <div>
+        <label for="auth-email" class="mb-1.5 block text-sm font-medium text-slate-700">Email</label>
+        <input type="email" id="auth-email" autocomplete="email" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="you@school.edu" />
+      </div>
+      <div>
+        <label for="auth-password" class="mb-1.5 block text-sm font-medium text-slate-700">Password</label>
+        <input type="password" id="auth-password" autocomplete="current-password" required minlength="6" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="At least 6 characters" />
+      </div>
+      <button type="submit" id="auth-submit-btn" class="auth-submit-btn inline-flex w-full items-center justify-center rounded-lg bg-stem-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
+        Sign In
+      </button>
+    </form>
+  </div>
+
   <div id="toast" class="toast fixed bottom-6 left-1/2 z-[60] hidden rounded-lg bg-stem-900 px-5 py-3 text-sm font-medium text-white shadow-lg" role="alert" aria-live="polite"></div>
 
   <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
     STEM Alumni Networking Toolkit &mdash; for Foothill and De Anza community college students.
   </footer>
 
-  <script>
+  <script type="module">
+    const supabase = window.supabase.createClient('https://ahwxlifsfurmzonfyrvf.supabase.co', 'sb_publishable_WzuiPPZQJbHd1YFqxxLCbQ_dAfZg8Xr');
+
     const form = document.getElementById('preferences-form');
     const formError = document.getElementById('form-error');
     const searchPlaceholder = document.getElementById('search-placeholder');
@@ -990,6 +1111,19 @@
       resumeSource: null,
       highlights: []
     };
+
+    var authSession = null;
+    var bookmarksInMemory = null;
+    var authMode = 'signin';
+    var authDataLoading = false;
+
+    function isLoggedIn() {
+      return !!(authSession && authSession.user);
+    }
+
+    function getAuthUserId() {
+      return isLoggedIn() ? authSession.user.id : null;
+    }
 
     var OUTREACH_STATUSES = [
       { value: 'not-contacted', label: 'Not Contacted' },
@@ -1418,6 +1552,9 @@
     }
 
     function loadBookmarks() {
+      if (isLoggedIn()) {
+        return (bookmarksInMemory || []).slice();
+      }
       try {
         var stored = localStorage.getItem(BOOKMARKS_STORAGE_KEY);
         return stored ? JSON.parse(stored) : [];
@@ -1427,7 +1564,345 @@
     }
 
     function saveBookmarks(bookmarks) {
+      if (isLoggedIn()) {
+        bookmarksInMemory = bookmarks.slice();
+        return;
+      }
       localStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify(bookmarks));
+    }
+
+    function mapSavedAlumniRowToBookmark(row, extras) {
+      extras = extras || {};
+      var searchLabel = extras.searchLabel || '';
+      var schools = extras.schools || [];
+      var reason = row.reason_for_connecting || '';
+      return {
+        id: row.id,
+        name: row.name || '',
+        title: row.job_title || '',
+        company: row.organization || '',
+        linkedinUrl: row.linkedin_url || '',
+        reasonForConnecting: reason,
+        outreachStatus: row.status || 'not-contacted',
+        jobDescription: extras.jobDescription || 'Saved alumni contact from your networking pipeline.',
+        searchLabel: searchLabel,
+        schools: schools.slice(),
+        templates: extras.templates || getTemplatesForBookmark(row.name || '', searchLabel, schools, reason),
+        savedAt: row.created_at || new Date().toISOString()
+      };
+    }
+
+    function profileRowFromStudentProfile(userId) {
+      return {
+        id: userId,
+        full_name: trimField(studentProfile.fullName),
+        college: trimField(studentProfile.college),
+        college_name: trimField(studentProfile.collegeOther),
+        major: trimField(studentProfile.major),
+        passion: trimField(studentProfile.passion),
+        resume_highlights: studentProfile.highlights.slice()
+      };
+    }
+
+    function applyProfileRowToStudentProfile(row) {
+      if (!row) return;
+      studentProfile.fullName = row.full_name || '';
+      studentProfile.college = row.college || '';
+      studentProfile.collegeOther = row.college_name || '';
+      studentProfile.major = row.major || '';
+      studentProfile.passion = row.passion || '';
+      studentProfile.highlights = Array.isArray(row.resume_highlights) ? row.resume_highlights : [];
+    }
+
+    async function fetchProfileFromSupabase() {
+      var userId = getAuthUserId();
+      if (!userId) return;
+
+      var result = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+      if (result.error) {
+        console.error('Profile fetch failed:', result.error.message);
+        showToast('Could not load your cloud profile.');
+        return;
+      }
+      if (result.data) {
+        applyProfileRowToStudentProfile(result.data);
+      } else if (isProfileComplete() || studentProfile.highlights.length) {
+        await upsertProfileToSupabase();
+      }
+      syncProfileFieldsToUI();
+      renderElevatorPitch();
+    }
+
+    async function upsertProfileToSupabase() {
+      var userId = getAuthUserId();
+      if (!userId) return;
+
+      var result = await supabase.from('profiles').upsert(profileRowFromStudentProfile(userId));
+      if (result.error) {
+        console.error('Profile save failed:', result.error.message);
+        showToast('Could not save profile to the cloud.');
+      }
+    }
+
+    async function fetchSavedAlumniFromSupabase() {
+      var userId = getAuthUserId();
+      if (!userId) return;
+
+      var result = await supabase
+        .from('saved_alumni')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (result.error) {
+        console.error('Saved alumni fetch failed:', result.error.message);
+        showToast('Could not load saved mentors from the cloud.');
+        bookmarksInMemory = [];
+      } else {
+        bookmarksInMemory = (result.data || []).map(function (row) {
+          return mapSavedAlumniRowToBookmark(row);
+        });
+      }
+      renderBookmarks();
+      populateFollowupContactSelect();
+    }
+
+    async function insertSavedAlumniToSupabase(payload, extras) {
+      var userId = getAuthUserId();
+      if (!userId) return null;
+
+      var result = await supabase.from('saved_alumni').insert({
+        user_id: userId,
+        name: payload.name,
+        job_title: payload.title,
+        organization: payload.company,
+        linkedin_url: payload.linkedinUrl,
+        reason_for_connecting: payload.reasonForConnecting,
+        status: payload.outreachStatus || 'not-contacted'
+      }).select('*').single();
+
+      if (result.error) {
+        console.error('Saved alumni insert failed:', result.error.message);
+        return { error: result.error };
+      }
+      return { data: mapSavedAlumniRowToBookmark(result.data, extras) };
+    }
+
+    async function deleteSavedAlumniFromSupabase(bookmarkId) {
+      var userId = getAuthUserId();
+      if (!userId) return { error: new Error('Not signed in') };
+
+      return supabase.from('saved_alumni').delete().eq('id', bookmarkId).eq('user_id', userId);
+    }
+
+    async function updateSavedAlumniStatusInSupabase(bookmarkId, status) {
+      var userId = getAuthUserId();
+      if (!userId) return { error: new Error('Not signed in') };
+
+      return supabase.from('saved_alumni').update({ status: status }).eq('id', bookmarkId).eq('user_id', userId);
+    }
+
+    function updateCloudBannerVisibility() {
+      var banner = document.getElementById('profile-cloud-banner');
+      if (!banner) return;
+      banner.classList.toggle('hidden', isLoggedIn());
+    }
+
+    function setAuthAlert(message, type) {
+      var alertEl = document.getElementById('auth-alert');
+      if (!alertEl) return;
+      if (!message) {
+        alertEl.classList.add('hidden');
+        alertEl.textContent = '';
+        return;
+      }
+      alertEl.textContent = message;
+      alertEl.classList.remove('hidden');
+      alertEl.className = 'mt-4 rounded-lg px-3 py-2.5 text-sm ' + (type === 'success'
+        ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+        : 'border border-red-200 bg-red-50 text-red-800');
+    }
+
+    function setAuthSubmitLoading(isLoading) {
+      var btn = document.getElementById('auth-submit-btn');
+      if (!btn) return;
+      btn.disabled = isLoading;
+      btn.textContent = isLoading
+        ? (authMode === 'signup' ? 'Creating account…' : 'Signing in…')
+        : (authMode === 'signup' ? 'Create Account' : 'Sign In');
+    }
+
+    function setAuthMode(mode) {
+      authMode = mode === 'signup' ? 'signup' : 'signin';
+      var signInTab = document.getElementById('auth-tab-signin');
+      var signUpTab = document.getElementById('auth-tab-signup');
+      var submitBtn = document.getElementById('auth-submit-btn');
+      var passwordInput = document.getElementById('auth-password');
+      if (signInTab) signInTab.setAttribute('aria-selected', authMode === 'signin' ? 'true' : 'false');
+      if (signUpTab) signUpTab.setAttribute('aria-selected', authMode === 'signup' ? 'true' : 'false');
+      if (submitBtn) submitBtn.textContent = authMode === 'signup' ? 'Create Account' : 'Sign In';
+      if (passwordInput) {
+        passwordInput.autocomplete = authMode === 'signup' ? 'new-password' : 'current-password';
+      }
+      setAuthAlert('');
+    }
+
+    function openAuthModal(mode) {
+      setAuthMode(mode || 'signin');
+      setAuthAlert('');
+      var backdrop = document.getElementById('auth-modal-backdrop');
+      var modal = document.getElementById('auth-modal');
+      if (!backdrop || !modal) return;
+      backdrop.classList.add('open');
+      modal.classList.add('open');
+      backdrop.setAttribute('aria-hidden', 'false');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('auth-modal-open');
+      document.getElementById('auth-email').focus();
+    }
+
+    function closeAuthModal() {
+      var backdrop = document.getElementById('auth-modal-backdrop');
+      var modal = document.getElementById('auth-modal');
+      if (!backdrop || !modal) return;
+      backdrop.classList.remove('open');
+      modal.classList.remove('open');
+      backdrop.setAttribute('aria-hidden', 'true');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('auth-modal-open');
+      setAuthSubmitLoading(false);
+    }
+
+    function updateAuthUI() {
+      var userArea = document.getElementById('auth-user-area');
+      var openBtn = document.getElementById('auth-open-modal-btn');
+      var label = document.getElementById('auth-user-label');
+      var pill = document.getElementById('profile-status-pill');
+
+      if (isLoggedIn()) {
+        if (userArea) userArea.classList.remove('hidden');
+        if (userArea) userArea.classList.add('flex');
+        if (openBtn) openBtn.classList.add('hidden');
+        if (pill) pill.classList.remove('guest');
+
+        var user = authSession.user;
+        var displayName = trimField(studentProfile.fullName) || user.email || 'Signed in';
+        if (label) label.textContent = displayName;
+        if (label) label.title = user.email || displayName;
+      } else {
+        if (userArea) userArea.classList.add('hidden');
+        if (userArea) userArea.classList.remove('flex');
+        if (openBtn) openBtn.classList.remove('hidden');
+        if (pill) pill.classList.add('guest');
+        if (label) label.textContent = '';
+      }
+      updateCloudBannerVisibility();
+      updateProfileStatusPill();
+    }
+
+    async function handleAuthSession(session, options) {
+      options = options || {};
+      authSession = session;
+      updateAuthUI();
+
+      if (session && session.user) {
+        authDataLoading = true;
+        setAuthSubmitLoading(true);
+        try {
+          await fetchProfileFromSupabase();
+          await fetchSavedAlumniFromSupabase();
+          if (options.notify) {
+            showToast('Signed in. Your profile and saved mentors are synced.');
+          }
+        } finally {
+          authDataLoading = false;
+          setAuthSubmitLoading(false);
+          closeAuthModal();
+        }
+        return;
+      }
+
+      bookmarksInMemory = null;
+      loadStudentProfile();
+      syncProfileFieldsToUI();
+      renderElevatorPitch();
+      renderBookmarks();
+      populateFollowupContactSelect();
+    }
+
+    async function submitAuthForm(event) {
+      event.preventDefault();
+      setAuthAlert('');
+
+      var email = trimField(document.getElementById('auth-email').value);
+      var password = document.getElementById('auth-password').value;
+
+      if (!email || !password) {
+        setAuthAlert('Please enter your email and password.', 'error');
+        return;
+      }
+
+      setAuthSubmitLoading(true);
+
+      if (authMode === 'signup') {
+        var signUpResult = await supabase.auth.signUp({ email: email, password: password });
+        if (signUpResult.error) {
+          setAuthAlert(signUpResult.error.message, 'error');
+          setAuthSubmitLoading(false);
+          return;
+        }
+        if (signUpResult.data.session) {
+          return;
+        }
+        setAuthAlert('Account created. Check your email to confirm, then sign in.', 'success');
+        setAuthSubmitLoading(false);
+        return;
+      }
+
+      var signInResult = await supabase.auth.signInWithPassword({ email: email, password: password });
+      if (signInResult.error) {
+        setAuthAlert(signInResult.error.message, 'error');
+        setAuthSubmitLoading(false);
+      }
+    }
+
+    function initAuthUI() {
+      document.getElementById('auth-open-modal-btn').addEventListener('click', function () {
+        openAuthModal('signin');
+      });
+      document.getElementById('auth-modal-close').addEventListener('click', closeAuthModal);
+      document.getElementById('auth-modal-backdrop').addEventListener('click', closeAuthModal);
+      document.getElementById('auth-tab-signin').addEventListener('click', function () {
+        setAuthMode('signin');
+      });
+      document.getElementById('auth-tab-signup').addEventListener('click', function () {
+        setAuthMode('signup');
+      });
+      document.getElementById('auth-form').addEventListener('submit', submitAuthForm);
+      document.getElementById('auth-sign-out-btn').addEventListener('click', async function () {
+        await supabase.auth.signOut();
+        showToast('Signed out.');
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && document.getElementById('auth-modal').classList.contains('open')) {
+          closeAuthModal();
+        }
+      });
+    }
+
+    async function initSupabaseAuth() {
+      var sessionResult = await supabase.auth.getSession();
+      if (sessionResult.data.session) {
+        await handleAuthSession(sessionResult.data.session, { notify: false });
+      } else {
+        updateAuthUI();
+      }
+
+      supabase.auth.onAuthStateChange(function (event, session) {
+        if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') return;
+        handleAuthSession(session, { notify: event === 'SIGNED_IN' });
+      });
     }
 
     function loadStudentProfile() {
@@ -1453,7 +1928,13 @@
     }
 
     function saveStudentProfile() {
+      if (isLoggedIn()) {
+        upsertProfileToSupabase();
+        updateAuthUI();
+        return;
+      }
       localStorage.setItem(STUDENT_PROFILE_STORAGE_KEY, JSON.stringify(studentProfile));
+      updateCloudBannerVisibility();
     }
 
     function getCollegeLabel() {
@@ -1621,6 +2102,12 @@
         pill.textContent = '👤 Profile: Complete ✓';
         pill.classList.remove('incomplete');
         pill.classList.add('complete');
+        pill.classList.remove('guest');
+      } else if (!isLoggedIn()) {
+        pill.textContent = '👤 Guest Profile';
+        pill.classList.remove('complete');
+        pill.classList.add('incomplete');
+        pill.classList.add('guest');
       } else {
         pill.textContent = '👤 Set Up Profile';
         pill.classList.remove('complete');
@@ -2064,6 +2551,7 @@
         refreshPersonalizedTemplates();
       });
 
+      updateCloudBannerVisibility();
       renderElevatorPitch();
     }
 
@@ -2158,6 +2646,13 @@
 
       if (updated) {
         saveBookmarks(bookmarks);
+        if (isLoggedIn()) {
+          updateSavedAlumniStatusInSupabase(bookmarkId, status).then(function (result) {
+            if (result.error) {
+              showToast('Could not update status in the cloud.');
+            }
+          });
+        }
       }
     }
 
@@ -2596,7 +3091,7 @@
       renderElevatorPitch();
     });
 
-    bookmarkForm.addEventListener('submit', function (e) {
+    bookmarkForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       var name = document.getElementById('bookmark-name').value.trim();
@@ -2630,24 +3125,53 @@
       templatesPlaceholder.classList.add('hidden');
       templatesContent.classList.remove('hidden');
 
-      var bookmarks = loadBookmarks();
-      bookmarks.unshift({
-        id: String(Date.now()),
-        name: name,
-        title: title,
-        company: company,
-        linkedinUrl: linkedinUrl,
+      var templates = getTemplatesForBookmark(name, searchLabel, schools, reasonForConnecting);
+      var extras = {
         jobDescription: jobDescription,
         searchLabel: searchLabel,
         schools: schools.slice(),
-        reasonForConnecting: reasonForConnecting,
-        outreachStatus: 'not-contacted',
-        templates: getTemplatesForBookmark(name, searchLabel, schools, reasonForConnecting),
-        savedAt: new Date().toISOString()
-      });
+        templates: templates
+      };
 
-      saveBookmarks(bookmarks);
-      renderBookmarks();
+      if (isLoggedIn()) {
+        var insertResult = await insertSavedAlumniToSupabase({
+          name: name,
+          title: title,
+          company: company,
+          linkedinUrl: linkedinUrl,
+          reasonForConnecting: reasonForConnecting,
+          outreachStatus: 'not-contacted'
+        }, extras);
+
+        if (insertResult && insertResult.error) {
+          showBookmarkMessage('Could not save mentor to the cloud. Try again.', true);
+          return;
+        }
+
+        if (!bookmarksInMemory) bookmarksInMemory = [];
+        bookmarksInMemory.unshift(insertResult.data);
+        renderBookmarks();
+      } else {
+        var bookmarks = loadBookmarks();
+        bookmarks.unshift({
+          id: String(Date.now()),
+          name: name,
+          title: title,
+          company: company,
+          linkedinUrl: linkedinUrl,
+          jobDescription: jobDescription,
+          searchLabel: searchLabel,
+          schools: schools.slice(),
+          reasonForConnecting: reasonForConnecting,
+          outreachStatus: 'not-contacted',
+          templates: templates,
+          savedAt: new Date().toISOString()
+        });
+
+        saveBookmarks(bookmarks);
+        renderBookmarks();
+      }
+
       bookmarkForm.reset();
       showToast('Profile stashed. Your tailored notes are ready in Step 4.');
 
@@ -2657,14 +3181,26 @@
       }
     });
 
-    bookmarksList.addEventListener('click', function (e) {
+    bookmarksList.addEventListener('click', async function (e) {
       var removeButton = e.target.closest('.remove-bookmark');
       if (removeButton) {
         var removeId = removeButton.getAttribute('data-bookmark-id');
-        var updatedBookmarks = loadBookmarks().filter(function (bookmark) {
-          return bookmark.id !== removeId;
-        });
-        saveBookmarks(updatedBookmarks);
+
+        if (isLoggedIn()) {
+          var deleteResult = await deleteSavedAlumniFromSupabase(removeId);
+          if (deleteResult.error) {
+            showToast('Could not remove mentor from the cloud.');
+            return;
+          }
+          bookmarksInMemory = loadBookmarks().filter(function (bookmark) {
+            return bookmark.id !== removeId;
+          });
+        } else {
+          saveBookmarks(loadBookmarks().filter(function (bookmark) {
+            return bookmark.id !== removeId;
+          }));
+        }
+
         renderBookmarks();
         return;
       }
@@ -2715,11 +3251,13 @@
       document.getElementById('followup-output').classList.remove('hidden');
     });
 
-    renderBookmarks();
+    initAuthUI();
     initPillarSelection();
     initStudentProfile();
     initTemplateEditors();
     initFollowupGenerator();
+    renderBookmarks();
+    initSupabaseAuth();
 
     document.getElementById('search-result').addEventListener('click', function (e) {
       var copyBtn = e.target.closest('.copy-link-btn');
