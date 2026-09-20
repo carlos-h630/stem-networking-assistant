@@ -303,6 +303,43 @@
       opacity: 0.65;
       cursor: not-allowed;
     }
+    .password-field-wrap {
+      position: relative;
+    }
+    .password-field-wrap .password-input {
+      padding-right: 2.75rem;
+    }
+    .password-toggle-btn {
+      position: absolute;
+      right: 0.35rem;
+      top: 50%;
+      transform: translateY(-50%);
+      display: inline-flex;
+      height: 2rem;
+      width: 2rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.375rem;
+      color: #64748b;
+      transition: color 0.15s ease, background-color 0.15s ease;
+    }
+    .password-toggle-btn:hover {
+      color: #334155;
+      background-color: #f1f5f9;
+    }
+    .password-toggle-btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.35);
+    }
+    .password-toggle-btn .icon-eye-off {
+      display: none;
+    }
+    .password-toggle-btn.is-visible .icon-eye {
+      display: none;
+    }
+    .password-toggle-btn.is-visible .icon-eye-off {
+      display: block;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-800">
@@ -2132,38 +2169,53 @@
       switchTab('start');
     }
 
+    async function handleSignedOutState() {
+      authSession = null;
+      bookmarksInMemory = null;
+      passwordRecoveryActive = false;
+
+      closeProfilePanel();
+      closeAuthModal();
+      hidePasswordRecoveryView();
+      setProfilePasswordAlert('');
+      resetPasswordToggleStates();
+
+      loadStudentProfile();
+      syncProfileFieldsToUI();
+      renderElevatorPitch();
+      renderBookmarks();
+      populateFollowupContactSelect();
+      updateAuthUI();
+    }
+
     async function handleAuthSession(session, options) {
       options = options || {};
       if (passwordRecoveryActive) {
         authSession = session;
         return;
       }
-      authSession = session;
-      updateAuthUI();
 
-      if (session && session.user) {
-        authDataLoading = true;
-        setAuthSubmitLoading(true);
-        try {
-          await fetchProfileFromSupabase();
-          await fetchSavedAlumniFromSupabase();
-          if (options.notify) {
-            showToast('Signed in. Your profile and saved mentors are synced.');
-          }
-        } finally {
-          authDataLoading = false;
-          setAuthSubmitLoading(false);
-          closeAuthModal();
-        }
+      if (!session || !session.user) {
+        await handleSignedOutState();
         return;
       }
 
-      bookmarksInMemory = null;
-      loadStudentProfile();
-      syncProfileFieldsToUI();
-      renderElevatorPitch();
-      renderBookmarks();
-      populateFollowupContactSelect();
+      authSession = session;
+      updateAuthUI();
+
+      authDataLoading = true;
+      setAuthSubmitLoading(true);
+      try {
+        await fetchProfileFromSupabase();
+        await fetchSavedAlumniFromSupabase();
+        if (options.notify) {
+          showToast('Signed in. Your profile and saved mentors are synced.');
+        }
+      } finally {
+        authDataLoading = false;
+        setAuthSubmitLoading(false);
+        closeAuthModal();
+      }
     }
 
     async function submitAuthForm(event) {
@@ -2234,7 +2286,11 @@
       document.getElementById('change-password-btn').addEventListener('click', submitChangePassword);
       document.getElementById('auth-recovery-form').addEventListener('submit', submitPasswordRecovery);
       document.getElementById('auth-sign-out-btn').addEventListener('click', async function () {
-        await supabase.auth.signOut();
+        var result = await supabase.auth.signOut();
+        if (result.error) {
+          showToast('Could not sign out. Please try again.');
+          return;
+        }
         showToast('Signed out.');
       });
 
@@ -2256,6 +2312,11 @@
           return;
         }
 
+        if (event === 'SIGNED_OUT') {
+          await handleSignedOutState();
+          return;
+        }
+
         if (event === 'INITIAL_SESSION') {
           if (session && isPasswordRecoveryUrl()) {
             authSession = session;
@@ -2267,7 +2328,7 @@
             await handleAuthSession(session, { notify: false });
             return;
           }
-          updateAuthUI();
+          await handleSignedOutState();
           return;
         }
 
@@ -2468,21 +2529,73 @@
       var pill = document.getElementById('profile-status-pill');
       if (!pill) return;
 
+      pill.classList.remove('complete', 'incomplete', 'guest');
+
+      if (!isLoggedIn()) {
+        pill.textContent = '👤 Guest Profile';
+        pill.classList.add('incomplete', 'guest');
+        return;
+      }
+
       if (isProfileComplete()) {
         pill.textContent = '👤 Profile: Complete ✓';
-        pill.classList.remove('incomplete');
         pill.classList.add('complete');
-        pill.classList.remove('guest');
-      } else if (!isLoggedIn()) {
-        pill.textContent = '👤 Guest Profile';
-        pill.classList.remove('complete');
-        pill.classList.add('incomplete');
-        pill.classList.add('guest');
-      } else {
-        pill.textContent = '👤 Set Up Profile';
-        pill.classList.remove('complete');
-        pill.classList.add('incomplete');
+        return;
       }
+
+      pill.textContent = '👤 Set Up Profile';
+      pill.classList.add('incomplete');
+    }
+
+    function resetPasswordToggleStates() {
+      document.querySelectorAll('.password-toggle-btn.is-visible').forEach(function (btn) {
+        btn.classList.remove('is-visible');
+        btn.setAttribute('aria-label', 'Show password');
+        btn.setAttribute('aria-pressed', 'false');
+      });
+      document.querySelectorAll('.password-input[type="text"]').forEach(function (input) {
+        input.type = 'password';
+      });
+    }
+
+    function initPasswordVisibilityToggles() {
+      var eyeIcon = (
+        '<svg class="icon-eye h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
+          '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />' +
+          '<path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />' +
+        '</svg>' +
+        '<svg class="icon-eye-off h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
+          '<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />' +
+        '</svg>'
+      );
+
+      document.querySelectorAll('input[type="password"]').forEach(function (input) {
+        if (input.closest('.password-field-wrap')) return;
+
+        input.classList.add('password-input');
+
+        var wrap = document.createElement('div');
+        wrap.className = 'password-field-wrap';
+        input.parentNode.insertBefore(wrap, input);
+        wrap.appendChild(input);
+
+        var toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'password-toggle-btn';
+        toggleBtn.setAttribute('aria-label', 'Show password');
+        toggleBtn.setAttribute('aria-pressed', 'false');
+        toggleBtn.innerHTML = eyeIcon;
+
+        toggleBtn.addEventListener('click', function () {
+          var revealing = input.type === 'password';
+          input.type = revealing ? 'text' : 'password';
+          toggleBtn.classList.toggle('is-visible', revealing);
+          toggleBtn.setAttribute('aria-label', revealing ? 'Hide password' : 'Show password');
+          toggleBtn.setAttribute('aria-pressed', revealing ? 'true' : 'false');
+        });
+
+        wrap.appendChild(toggleBtn);
+      });
     }
 
     function toggleCollegeOtherVisibility() {
@@ -3622,6 +3735,7 @@
     });
 
     initAuthUI();
+    initPasswordVisibilityToggles();
     initPillarSelection();
     initStudentProfile();
     initTemplateEditors();
