@@ -1040,6 +1040,29 @@
             <p id="resume-highlights-empty" class="mt-2 text-xs text-slate-500">Upload a resume or paste a bio to generate highlight tags.</p>
         </div>
       </div>
+
+      <div id="profile-account-section" class="hidden mt-8 border-t border-slate-200 pt-6">
+        <h3 class="text-sm font-semibold text-stem-900">Account &amp; Password</h3>
+        <p class="mt-1 text-xs text-slate-500">Update the password you use to sign in to PeerPath.</p>
+        <div id="change-password-alert" class="mt-3 hidden rounded-lg px-3 py-2.5 text-sm" role="alert"></div>
+        <div class="mt-4 space-y-4">
+          <div>
+            <label for="profile-new-password" class="mb-1.5 block text-sm font-medium text-slate-700">New password</label>
+            <input type="password" id="profile-new-password" autocomplete="new-password" minlength="6" class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="At least 6 characters" />
+          </div>
+          <div>
+            <label for="profile-confirm-password" class="mb-1.5 block text-sm font-medium text-slate-700">Confirm new password</label>
+            <input type="password" id="profile-confirm-password" autocomplete="new-password" minlength="6" class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="Re-enter your new password" />
+          </div>
+          <button
+            type="button"
+            id="change-password-btn"
+            class="inline-flex w-full items-center justify-center rounded-md border border-stem-600 bg-white px-4 py-2.5 text-sm font-semibold text-stem-700 transition hover:bg-stem-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Change Password
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="border-t border-slate-200 bg-white px-5 py-4 sm:px-6">
@@ -1074,26 +1097,49 @@
       </button>
     </div>
 
-    <div class="mt-5 flex border-b border-slate-200" role="tablist" aria-label="Authentication mode">
+    <div id="auth-tabs-wrap" class="mt-5 flex border-b border-slate-200" role="tablist" aria-label="Authentication mode">
       <button type="button" id="auth-tab-signin" class="auth-tab flex-1 border-b-2 px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-inset" role="tab" aria-selected="true" aria-controls="auth-panel-signin">Sign In</button>
       <button type="button" id="auth-tab-signup" class="auth-tab flex-1 border-b-2 px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-inset" role="tab" aria-selected="false" aria-controls="auth-panel-signup">Sign Up</button>
     </div>
 
     <div id="auth-alert" class="mt-4 hidden rounded-lg px-3 py-2.5 text-sm" role="alert"></div>
 
-    <form id="auth-form" class="mt-4 space-y-4">
-      <div>
-        <label for="auth-email" class="mb-1.5 block text-sm font-medium text-slate-700">Email</label>
-        <input type="email" id="auth-email" autocomplete="email" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="you@school.edu" />
-      </div>
-      <div>
-        <label for="auth-password" class="mb-1.5 block text-sm font-medium text-slate-700">Password</label>
-        <input type="password" id="auth-password" autocomplete="current-password" required minlength="6" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="At least 6 characters" />
-      </div>
-      <button type="submit" id="auth-submit-btn" class="auth-submit-btn inline-flex w-full items-center justify-center rounded-lg bg-stem-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
-        Sign In
+    <div id="auth-signin-signup-wrap">
+      <form id="auth-form" class="mt-4 space-y-4">
+        <div>
+          <label for="auth-email" class="mb-1.5 block text-sm font-medium text-slate-700">Email</label>
+          <input type="email" id="auth-email" autocomplete="email" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="you@school.edu" />
+        </div>
+        <div>
+          <div class="mb-1.5 flex items-center justify-between gap-2">
+            <label for="auth-password" class="block text-sm font-medium text-slate-700">Password</label>
+            <button type="button" id="auth-forgot-password-link" class="text-xs font-semibold text-stem-700 hover:text-stem-900 focus:outline-none focus:underline">
+              Forgot Password?
+            </button>
+          </div>
+          <input type="password" id="auth-password" autocomplete="current-password" required minlength="6" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="At least 6 characters" />
+        </div>
+        <button type="submit" id="auth-submit-btn" class="auth-submit-btn inline-flex w-full items-center justify-center rounded-lg bg-stem-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
+          Sign In
+        </button>
+      </form>
+    </div>
+
+    <div id="auth-forgot-wrap" class="hidden mt-4 space-y-4">
+      <p class="text-sm leading-relaxed text-slate-600">Enter your account email and we&rsquo;ll send you a link to reset your password.</p>
+      <form id="auth-forgot-form" class="space-y-4">
+        <div>
+          <label for="auth-forgot-email" class="mb-1.5 block text-sm font-medium text-slate-700">Email</label>
+          <input type="email" id="auth-forgot-email" autocomplete="email" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="you@school.edu" />
+        </div>
+        <button type="submit" id="auth-forgot-submit-btn" class="auth-submit-btn inline-flex w-full items-center justify-center rounded-lg bg-stem-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
+          Send Reset Link
+        </button>
+      </form>
+      <button type="button" id="auth-back-to-signin-btn" class="w-full text-center text-sm font-semibold text-stem-700 hover:text-stem-900 focus:outline-none focus:underline">
+        &larr; Back to Sign In
       </button>
-    </form>
+    </div>
   </div>
 
   <div id="toast" class="toast fixed bottom-6 left-1/2 z-[60] hidden rounded-lg bg-stem-900 px-5 py-3 text-sm font-medium text-white shadow-lg" role="alert" aria-live="polite"></div>
@@ -1763,19 +1809,65 @@
         : (authMode === 'signup' ? 'Create Account' : 'Sign In');
     }
 
+    function setForgotSubmitLoading(isLoading) {
+      var btn = document.getElementById('auth-forgot-submit-btn');
+      if (!btn) return;
+      btn.disabled = isLoading;
+      btn.textContent = isLoading ? 'Sending…' : 'Send Reset Link';
+    }
+
+    function setProfilePasswordAlert(message, type) {
+      var alertEl = document.getElementById('change-password-alert');
+      if (!alertEl) return;
+      if (!message) {
+        alertEl.classList.add('hidden');
+        alertEl.textContent = '';
+        return;
+      }
+      alertEl.textContent = message;
+      alertEl.classList.remove('hidden');
+      alertEl.className = 'mt-3 rounded-lg px-3 py-2.5 text-sm ' + (type === 'success'
+        ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+        : 'border border-red-200 bg-red-50 text-red-800');
+    }
+
     function setAuthMode(mode) {
-      authMode = mode === 'signup' ? 'signup' : 'signin';
+      authMode = mode === 'signup' ? 'signup' : mode === 'forgot' ? 'forgot' : 'signin';
+
       var signInTab = document.getElementById('auth-tab-signin');
       var signUpTab = document.getElementById('auth-tab-signup');
       var submitBtn = document.getElementById('auth-submit-btn');
       var passwordInput = document.getElementById('auth-password');
+      var tabsWrap = document.getElementById('auth-tabs-wrap');
+      var signInSignupWrap = document.getElementById('auth-signin-signup-wrap');
+      var forgotWrap = document.getElementById('auth-forgot-wrap');
+      var forgotLink = document.getElementById('auth-forgot-password-link');
+      var modalTitle = document.getElementById('auth-modal-title');
+
+      if (authMode === 'forgot') {
+        if (tabsWrap) tabsWrap.classList.add('hidden');
+        if (signInSignupWrap) signInSignupWrap.classList.add('hidden');
+        if (forgotWrap) forgotWrap.classList.remove('hidden');
+        if (modalTitle) modalTitle.textContent = 'Reset your password';
+        setAuthSubmitLoading(false);
+        setForgotSubmitLoading(false);
+        return;
+      }
+
+      if (tabsWrap) tabsWrap.classList.remove('hidden');
+      if (signInSignupWrap) signInSignupWrap.classList.remove('hidden');
+      if (forgotWrap) forgotWrap.classList.add('hidden');
+      if (modalTitle) modalTitle.textContent = 'Welcome back';
+
       if (signInTab) signInTab.setAttribute('aria-selected', authMode === 'signin' ? 'true' : 'false');
       if (signUpTab) signUpTab.setAttribute('aria-selected', authMode === 'signup' ? 'true' : 'false');
       if (submitBtn) submitBtn.textContent = authMode === 'signup' ? 'Create Account' : 'Sign In';
       if (passwordInput) {
         passwordInput.autocomplete = authMode === 'signup' ? 'new-password' : 'current-password';
       }
+      if (forgotLink) forgotLink.classList.toggle('hidden', authMode !== 'signin');
       setAuthAlert('');
+      setForgotSubmitLoading(false);
     }
 
     function openAuthModal(mode) {
@@ -1810,6 +1902,7 @@
       var label = document.getElementById('auth-user-label');
       var pill = document.getElementById('profile-status-pill');
       var userHub = document.getElementById('header-user-hub');
+      var accountSection = document.getElementById('profile-account-section');
 
       if (isLoggedIn()) {
         if (userArea) userArea.classList.remove('hidden');
@@ -1822,6 +1915,7 @@
         var displayName = trimField(studentProfile.fullName) || user.email || 'Signed in';
         if (label) label.textContent = displayName;
         if (label) label.title = user.email || displayName;
+        if (accountSection) accountSection.classList.remove('hidden');
       } else {
         if (userArea) userArea.classList.add('hidden');
         if (userArea) userArea.classList.remove('flex');
@@ -1829,9 +1923,81 @@
         if (pill) pill.classList.add('guest');
         if (label) label.textContent = '';
         if (userHub) userHub.classList.remove('is-authenticated');
+        if (accountSection) accountSection.classList.add('hidden');
       }
       updateCloudBannerVisibility();
       updateProfileStatusPill();
+    }
+
+    async function submitChangePassword() {
+      setProfilePasswordAlert('');
+
+      if (!isLoggedIn()) {
+        setProfilePasswordAlert('Sign in to change your password.', 'error');
+        return;
+      }
+
+      var newPassword = document.getElementById('profile-new-password').value;
+      var confirmPassword = document.getElementById('profile-confirm-password').value;
+      var changeBtn = document.getElementById('change-password-btn');
+
+      if (!newPassword || newPassword.length < 6) {
+        setProfilePasswordAlert('Password must be at least 6 characters.', 'error');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        setProfilePasswordAlert('Passwords do not match. Please try again.', 'error');
+        return;
+      }
+
+      if (changeBtn) changeBtn.disabled = true;
+
+      var result = await supabase.auth.updateUser({ password: newPassword });
+
+      if (changeBtn) changeBtn.disabled = false;
+
+      if (result.error) {
+        setProfilePasswordAlert(result.error.message, 'error');
+        return;
+      }
+
+      document.getElementById('profile-new-password').value = '';
+      document.getElementById('profile-confirm-password').value = '';
+      setProfilePasswordAlert('Password updated successfully.', 'success');
+      showToast('Your password has been updated.');
+    }
+
+    async function submitForgotPassword(event) {
+      event.preventDefault();
+      setAuthAlert('');
+
+      var forgotEmailField = document.getElementById('auth-forgot-email');
+      var signInEmailField = document.getElementById('auth-email');
+      var email = trimField(forgotEmailField && forgotEmailField.value);
+      if (!email && signInEmailField) {
+        email = trimField(signInEmailField.value);
+      }
+
+      if (!email) {
+        setAuthAlert('Please enter the email address for your account.', 'error');
+        return;
+      }
+
+      setForgotSubmitLoading(true);
+
+      var result = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + window.location.pathname
+      });
+
+      setForgotSubmitLoading(false);
+
+      if (result.error) {
+        setAuthAlert(result.error.message, 'error');
+        return;
+      }
+
+      setAuthAlert('Check your inbox for a password reset link. It may take a minute to arrive.', 'success');
     }
 
     async function handleAuthSession(session, options) {
@@ -1913,6 +2079,23 @@
         setAuthMode('signup');
       });
       document.getElementById('auth-form').addEventListener('submit', submitAuthForm);
+      document.getElementById('auth-forgot-form').addEventListener('submit', submitForgotPassword);
+      document.getElementById('auth-forgot-password-link').addEventListener('click', function () {
+        var signInEmail = document.getElementById('auth-email');
+        var forgotEmail = document.getElementById('auth-forgot-email');
+        if (signInEmail && forgotEmail && signInEmail.value.trim()) {
+          forgotEmail.value = signInEmail.value.trim();
+        }
+        setAuthMode('forgot');
+        setAuthAlert('');
+        if (forgotEmail) forgotEmail.focus();
+      });
+      document.getElementById('auth-back-to-signin-btn').addEventListener('click', function () {
+        setAuthMode('signin');
+        setAuthAlert('');
+        document.getElementById('auth-email').focus();
+      });
+      document.getElementById('change-password-btn').addEventListener('click', submitChangePassword);
       document.getElementById('auth-sign-out-btn').addEventListener('click', async function () {
         await supabase.auth.signOut();
         showToast('Signed out.');
