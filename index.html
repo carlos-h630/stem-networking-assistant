@@ -126,8 +126,38 @@
       from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    .site-header {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .header-brand-title {
+      letter-spacing: -0.025em;
+    }
+    .header-user-hub {
+      min-width: 10.5rem;
+      max-width: 16rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(203, 213, 225, 0.85);
+      background: linear-gradient(165deg, rgba(248, 250, 252, 0.95) 0%, rgba(255, 255, 255, 0.98) 100%);
+      padding: 0.625rem 0.75rem;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+    .header-user-hub.is-authenticated .header-user-actions {
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(226, 232, 240, 0.9);
+    }
+    .header-user-hub #profile-status-pill {
+      width: 100%;
+      justify-content: center;
+    }
+    .how-it-works-section {
+      background: transparent;
+    }
     .quick-step-card {
-      background: #ffffff;
+      background: linear-gradient(165deg, #f8fafc 0%, #f1f5f9 55%, #eef2ff 100%);
+      border: 1px solid rgba(226, 232, 240, 0.75);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
     }
     .profile-panel-backdrop {
       position: fixed;
@@ -278,47 +308,47 @@
 <body class="min-h-screen bg-slate-50 text-slate-800">
 
   <!-- Header -->
-  <header class="border-b border-slate-200 bg-white">
-    <div class="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-7">
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex items-start gap-4 min-w-0">
-          <div class="hidden sm:flex h-11 w-11 shrink-0 items-center justify-center rounded-lg step-badge text-white">
+  <header class="site-header">
+    <div class="mx-auto max-w-3xl px-4 py-7 sm:px-6 sm:py-8">
+      <div class="flex items-start justify-between gap-5 sm:gap-8">
+        <div class="header-brand flex min-w-0 items-start gap-4">
+          <div class="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-xl step-badge text-white shadow-sm">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
-          <div class="min-w-0">
-            <h1 class="text-2xl font-semibold tracking-tight text-stem-900 sm:text-3xl">
+          <div class="min-w-0 pt-0.5">
+            <h1 class="header-brand-title text-2xl font-semibold text-stem-900 sm:text-[1.75rem] sm:leading-tight">
               PeerPath
             </h1>
-            <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-[15px]">
+            <p class="mt-2.5 max-w-xl text-sm leading-relaxed text-slate-600 sm:mt-3 sm:text-[15px] sm:leading-6">
               Finding your path in STEM shouldn't rely on luck. Connect directly with Foothill and De Anza alumni working in education, policy, research, and advocacy.
             </p>
           </div>
         </div>
-        <div class="flex shrink-0 flex-col items-end gap-2">
-          <div id="auth-user-area" class="hidden flex-wrap items-center justify-end gap-2">
-            <span id="auth-user-label" class="max-w-[10rem] truncate text-xs font-medium text-slate-700 sm:max-w-[14rem]"></span>
+        <div id="header-user-hub" class="header-user-hub shrink-0">
+          <div id="auth-user-area" class="hidden items-center justify-between gap-2">
+            <span id="auth-user-label" class="min-w-0 truncate text-xs font-semibold text-slate-800" title=""></span>
             <button
               type="button"
               id="auth-sign-out-btn"
-              class="rounded-full border border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
+              class="shrink-0 rounded-full border border-slate-300/90 bg-white/90 px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
             >
               Sign Out
             </button>
           </div>
-          <div class="flex flex-wrap items-center justify-end gap-2">
+          <div class="header-user-actions flex flex-col gap-2">
             <button
               type="button"
               id="auth-open-modal-btn"
-              class="rounded-full border border-stem-600 bg-stem-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
+              class="w-full rounded-lg border border-stem-600 bg-stem-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
             >
               Sign In / Register
             </button>
             <button
               type="button"
               id="profile-status-pill"
-              class="profile-status-pill guest incomplete shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
+              class="profile-status-pill guest incomplete inline-flex shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2"
               aria-expanded="false"
               aria-controls="profile-panel"
             >
@@ -373,7 +403,7 @@
     <!-- Tab 1: Overview -->
     <div id="tab-start" class="tab-panel space-y-8">
 
-      <section class="rounded-lg border border-slate-200 bg-white p-6 sm:p-8" aria-labelledby="welcome-heading">
+      <section class="how-it-works-section p-1 sm:p-2" aria-labelledby="welcome-heading">
         <h2 id="welcome-heading" class="text-xl font-semibold tracking-tight text-stem-900 sm:text-2xl">
           How It Works
         </h2>
@@ -381,19 +411,19 @@
           Build meaningful mentor connections in three simple steps.
         </p>
 
-        <div class="mt-8 grid gap-5 sm:grid-cols-3">
-          <article class="quick-step-card rounded-lg border border-slate-200 p-5">
-            <span class="step-badge inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-semibold text-white">1</span>
+        <div class="mt-8 grid gap-4 sm:grid-cols-3 sm:gap-5">
+          <article class="quick-step-card rounded-xl p-5 sm:p-6">
+            <span class="step-badge inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-semibold text-white shadow-sm">1</span>
             <h3 class="mt-4 text-sm font-semibold text-stem-900">Set Up Your Profile</h3>
             <p class="mt-2 text-sm leading-relaxed text-slate-600">Add your background, interests, and optional resume highlights to power personalized outreach.</p>
           </article>
-          <article class="quick-step-card rounded-lg border border-slate-200 p-5">
-            <span class="step-badge inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-semibold text-white">2</span>
+          <article class="quick-step-card rounded-xl p-5 sm:p-6">
+            <span class="step-badge inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-semibold text-white shadow-sm">2</span>
             <h3 class="mt-4 text-sm font-semibold text-stem-900">Explore Alumni &amp; Roles</h3>
             <p class="mt-2 text-sm leading-relaxed text-slate-600">Pick impact pillars like Education, Policy, or Community Outreach to generate curated LinkedIn searches.</p>
           </article>
-          <article class="quick-step-card rounded-lg border border-slate-200 p-5">
-            <span class="step-badge inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-semibold text-white">3</span>
+          <article class="quick-step-card rounded-xl p-5 sm:p-6">
+            <span class="step-badge inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-semibold text-white shadow-sm">3</span>
             <h3 class="mt-4 text-sm font-semibold text-stem-900">Connect &amp; Prep</h3>
             <p class="mt-2 text-sm leading-relaxed text-slate-600">Use personalized connection notes, prepare with coffee chat playbooks, and track mentors.</p>
           </article>
@@ -1779,12 +1809,14 @@
       var openBtn = document.getElementById('auth-open-modal-btn');
       var label = document.getElementById('auth-user-label');
       var pill = document.getElementById('profile-status-pill');
+      var userHub = document.getElementById('header-user-hub');
 
       if (isLoggedIn()) {
         if (userArea) userArea.classList.remove('hidden');
         if (userArea) userArea.classList.add('flex');
         if (openBtn) openBtn.classList.add('hidden');
         if (pill) pill.classList.remove('guest');
+        if (userHub) userHub.classList.add('is-authenticated');
 
         var user = authSession.user;
         var displayName = trimField(studentProfile.fullName) || user.email || 'Signed in';
@@ -1796,6 +1828,7 @@
         if (openBtn) openBtn.classList.remove('hidden');
         if (pill) pill.classList.add('guest');
         if (label) label.textContent = '';
+        if (userHub) userHub.classList.remove('is-authenticated');
       }
       updateCloudBannerVisibility();
       updateProfileStatusPill();
