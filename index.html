@@ -1090,7 +1090,7 @@
     <div class="flex items-start justify-between gap-3">
       <div>
         <h2 id="auth-modal-title" class="text-lg font-semibold text-stem-900">Welcome back</h2>
-        <p class="mt-1 text-sm text-slate-600">Sign in or create an account to sync your profile and saved mentors.</p>
+        <p id="auth-modal-subtitle" class="mt-1 text-sm text-slate-600">Sign in or create an account to sync your profile and saved mentors.</p>
       </div>
       <button type="button" id="auth-modal-close" class="rounded-md p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-stem-500" aria-label="Close sign in dialog">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -1139,6 +1139,23 @@
       <button type="button" id="auth-back-to-signin-btn" class="w-full text-center text-sm font-semibold text-stem-700 hover:text-stem-900 focus:outline-none focus:underline">
         &larr; Back to Sign In
       </button>
+    </div>
+
+    <div id="auth-recovery-wrap" class="hidden mt-4 space-y-4">
+      <p class="text-sm leading-relaxed text-slate-600">You&rsquo;re almost done. Choose a new password to secure your account and continue using PeerPath.</p>
+      <form id="auth-recovery-form" class="space-y-4">
+        <div>
+          <label for="auth-recovery-new-password" class="mb-1.5 block text-sm font-medium text-slate-700">New password</label>
+          <input type="password" id="auth-recovery-new-password" autocomplete="new-password" required minlength="6" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="At least 6 characters" />
+        </div>
+        <div>
+          <label for="auth-recovery-confirm-password" class="mb-1.5 block text-sm font-medium text-slate-700">Confirm new password</label>
+          <input type="password" id="auth-recovery-confirm-password" autocomplete="new-password" required minlength="6" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20" placeholder="Re-enter your new password" />
+        </div>
+        <button type="submit" id="auth-recovery-submit-btn" class="auth-submit-btn inline-flex w-full items-center justify-center rounded-lg bg-stem-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-stem-700 focus:outline-none focus:ring-2 focus:ring-stem-500 focus:ring-offset-2">
+          Save New Password
+        </button>
+      </form>
     </div>
   </div>
 
@@ -1193,6 +1210,7 @@
     var bookmarksInMemory = null;
     var authMode = 'signin';
     var authDataLoading = false;
+    var passwordRecoveryActive = false;
 
     function isLoggedIn() {
       return !!(authSession && authSession.user);
@@ -1831,8 +1849,75 @@
         : 'border border-red-200 bg-red-50 text-red-800');
     }
 
+    function isPasswordRecoveryUrl() {
+      var hash = window.location.hash || '';
+      return hash.indexOf('type=recovery') !== -1;
+    }
+
+    function clearPasswordRecoveryUrlHash() {
+      if (window.location.hash) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    }
+
+    function clearPasswordRecoveryInputs() {
+      var newField = document.getElementById('auth-recovery-new-password');
+      var confirmField = document.getElementById('auth-recovery-confirm-password');
+      if (newField) newField.value = '';
+      if (confirmField) confirmField.value = '';
+    }
+
+    function setRecoverySubmitLoading(isLoading) {
+      var btn = document.getElementById('auth-recovery-submit-btn');
+      if (!btn) return;
+      btn.disabled = isLoading;
+      btn.textContent = isLoading ? 'Saving…' : 'Save New Password';
+    }
+
+    function hidePasswordRecoveryView() {
+      passwordRecoveryActive = false;
+      var recoveryWrap = document.getElementById('auth-recovery-wrap');
+      if (recoveryWrap) recoveryWrap.classList.add('hidden');
+      setRecoverySubmitLoading(false);
+      clearPasswordRecoveryInputs();
+    }
+
+    function showPasswordRecoveryModal() {
+      passwordRecoveryActive = true;
+
+      var tabsWrap = document.getElementById('auth-tabs-wrap');
+      var signInSignupWrap = document.getElementById('auth-signin-signup-wrap');
+      var forgotWrap = document.getElementById('auth-forgot-wrap');
+      var recoveryWrap = document.getElementById('auth-recovery-wrap');
+      var modalTitle = document.getElementById('auth-modal-title');
+      var modalSubtitle = document.getElementById('auth-modal-subtitle');
+      var backdrop = document.getElementById('auth-modal-backdrop');
+      var modal = document.getElementById('auth-modal');
+
+      if (tabsWrap) tabsWrap.classList.add('hidden');
+      if (signInSignupWrap) signInSignupWrap.classList.add('hidden');
+      if (forgotWrap) forgotWrap.classList.add('hidden');
+      if (recoveryWrap) recoveryWrap.classList.remove('hidden');
+      if (modalTitle) modalTitle.textContent = 'Set a new password';
+      if (modalSubtitle) modalSubtitle.textContent = 'Finish resetting your password to sign back in to PeerPath.';
+      setAuthAlert('');
+      clearPasswordRecoveryInputs();
+
+      if (backdrop && modal) {
+        backdrop.classList.add('open');
+        modal.classList.add('open');
+        backdrop.setAttribute('aria-hidden', 'false');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('auth-modal-open');
+      }
+
+      var focusField = document.getElementById('auth-recovery-new-password');
+      if (focusField) focusField.focus();
+    }
+
     function setAuthMode(mode) {
       authMode = mode === 'signup' ? 'signup' : mode === 'forgot' ? 'forgot' : 'signin';
+      hidePasswordRecoveryView();
 
       var signInTab = document.getElementById('auth-tab-signin');
       var signUpTab = document.getElementById('auth-tab-signup');
@@ -1843,12 +1928,14 @@
       var forgotWrap = document.getElementById('auth-forgot-wrap');
       var forgotLink = document.getElementById('auth-forgot-password-link');
       var modalTitle = document.getElementById('auth-modal-title');
+      var modalSubtitle = document.getElementById('auth-modal-subtitle');
 
       if (authMode === 'forgot') {
         if (tabsWrap) tabsWrap.classList.add('hidden');
         if (signInSignupWrap) signInSignupWrap.classList.add('hidden');
         if (forgotWrap) forgotWrap.classList.remove('hidden');
         if (modalTitle) modalTitle.textContent = 'Reset your password';
+        if (modalSubtitle) modalSubtitle.textContent = 'We\'ll email you a link to choose a new password.';
         setAuthSubmitLoading(false);
         setForgotSubmitLoading(false);
         return;
@@ -1858,6 +1945,7 @@
       if (signInSignupWrap) signInSignupWrap.classList.remove('hidden');
       if (forgotWrap) forgotWrap.classList.add('hidden');
       if (modalTitle) modalTitle.textContent = 'Welcome back';
+      if (modalSubtitle) modalSubtitle.textContent = 'Sign in or create an account to sync your profile and saved mentors.';
 
       if (signInTab) signInTab.setAttribute('aria-selected', authMode === 'signin' ? 'true' : 'false');
       if (signUpTab) signUpTab.setAttribute('aria-selected', authMode === 'signup' ? 'true' : 'false');
@@ -1894,6 +1982,8 @@
       modal.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('auth-modal-open');
       setAuthSubmitLoading(false);
+      hidePasswordRecoveryView();
+      setAuthMode('signin');
     }
 
     function updateAuthUI() {
@@ -2000,8 +2090,54 @@
       setAuthAlert('Check your inbox for a password reset link. It may take a minute to arrive.', 'success');
     }
 
+    async function submitPasswordRecovery(event) {
+      event.preventDefault();
+      setAuthAlert('');
+
+      var newPassword = document.getElementById('auth-recovery-new-password').value;
+      var confirmPassword = document.getElementById('auth-recovery-confirm-password').value;
+
+      if (!newPassword || newPassword.length < 6) {
+        setAuthAlert('Password must be at least 6 characters.', 'error');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        setAuthAlert('Passwords do not match. Please try again.', 'error');
+        return;
+      }
+
+      setRecoverySubmitLoading(true);
+
+      var result = await supabase.auth.updateUser({ password: newPassword });
+
+      setRecoverySubmitLoading(false);
+
+      if (result.error) {
+        setAuthAlert(result.error.message, 'error');
+        return;
+      }
+
+      clearPasswordRecoveryInputs();
+      hidePasswordRecoveryView();
+      closeAuthModal();
+      clearPasswordRecoveryUrlHash();
+
+      var sessionResult = await supabase.auth.getSession();
+      authSession = sessionResult.data.session;
+      await handleAuthSession(authSession, { notify: false });
+
+      setAuthAlert('');
+      showToast('Password updated. Welcome back to PeerPath!');
+      switchTab('start');
+    }
+
     async function handleAuthSession(session, options) {
       options = options || {};
+      if (passwordRecoveryActive) {
+        authSession = session;
+        return;
+      }
       authSession = session;
       updateAuthUI();
 
@@ -2096,6 +2232,7 @@
         document.getElementById('auth-email').focus();
       });
       document.getElementById('change-password-btn').addEventListener('click', submitChangePassword);
+      document.getElementById('auth-recovery-form').addEventListener('submit', submitPasswordRecovery);
       document.getElementById('auth-sign-out-btn').addEventListener('click', async function () {
         await supabase.auth.signOut();
         showToast('Signed out.');
@@ -2109,16 +2246,32 @@
     }
 
     async function initSupabaseAuth() {
-      var sessionResult = await supabase.auth.getSession();
-      if (sessionResult.data.session) {
-        await handleAuthSession(sessionResult.data.session, { notify: false });
-      } else {
-        updateAuthUI();
-      }
+      supabase.auth.onAuthStateChange(async function (event, session) {
+        if (event === 'TOKEN_REFRESHED') return;
 
-      supabase.auth.onAuthStateChange(function (event, session) {
-        if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') return;
-        handleAuthSession(session, { notify: event === 'SIGNED_IN' });
+        if (event === 'PASSWORD_RECOVERY') {
+          authSession = session;
+          updateAuthUI();
+          showPasswordRecoveryModal();
+          return;
+        }
+
+        if (event === 'INITIAL_SESSION') {
+          if (session && isPasswordRecoveryUrl()) {
+            authSession = session;
+            updateAuthUI();
+            showPasswordRecoveryModal();
+            return;
+          }
+          if (session) {
+            await handleAuthSession(session, { notify: false });
+            return;
+          }
+          updateAuthUI();
+          return;
+        }
+
+        await handleAuthSession(session, { notify: event === 'SIGNED_IN' });
       });
     }
 
