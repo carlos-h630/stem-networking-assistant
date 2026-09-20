@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STEM Alumni Networking Toolkit</title>
+  <title>PeerPath</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -41,6 +41,7 @@
     }
     .tab-nav {
       border-bottom: 1px solid #e2e8f0;
+      overflow: hidden;
     }
     .tab-btn {
       border-bottom: 2px solid transparent;
@@ -288,7 +289,7 @@
           </div>
           <div class="min-w-0">
             <h1 class="text-2xl font-semibold tracking-tight text-stem-900 sm:text-3xl">
-              STEM Alumni Networking Toolkit
+              PeerPath
             </h1>
             <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-[15px]">
               Finding your path in STEM shouldn't rely on luck. Connect directly with Foothill and De Anza alumni working in education, policy, research, and advocacy.
@@ -330,7 +331,7 @@
   </header>
 
   <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-9">
-    <nav class="tab-nav mb-8 flex overflow-x-auto" aria-label="Main sections">
+    <nav class="tab-nav mb-8 flex flex-wrap" aria-label="Main sections">
       <button
         type="button"
         id="tab-btn-start"
@@ -1068,7 +1069,7 @@
   <div id="toast" class="toast fixed bottom-6 left-1/2 z-[60] hidden rounded-lg bg-stem-900 px-5 py-3 text-sm font-medium text-white shadow-lg" role="alert" aria-live="polite"></div>
 
   <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
-    STEM Alumni Networking Toolkit &mdash; for Foothill and De Anza community college students.
+    PeerPath &mdash; for Foothill and De Anza community college students.
   </footer>
 
   <script type="module">
