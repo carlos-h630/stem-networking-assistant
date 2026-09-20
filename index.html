@@ -2169,7 +2169,32 @@
       switchTab('start');
     }
 
-    async function handleSignedOutState() {
+    function clearUserLocalStorage() {
+      try {
+        localStorage.removeItem(BOOKMARKS_STORAGE_KEY);
+        localStorage.removeItem(STUDENT_PROFILE_STORAGE_KEY);
+        localStorage.removeItem(CUSTOM_TAGS_STORAGE_KEY);
+      } catch (err) {
+        /* ignore quota / private mode errors */
+      }
+    }
+
+    function resetStudentProfileInMemory() {
+      studentProfile = {
+        fullName: '',
+        college: '',
+        collegeOther: '',
+        major: '',
+        passion: '',
+        resumeText: '',
+        resumeFile: null,
+        resumeSource: null,
+        highlights: []
+      };
+    }
+
+    async function handleSignedOutState(options) {
+      options = options || {};
       authSession = null;
       bookmarksInMemory = null;
       passwordRecoveryActive = false;
@@ -2180,7 +2205,15 @@
       setProfilePasswordAlert('');
       resetPasswordToggleStates();
 
-      loadStudentProfile();
+      if (options.clearStoredUserData) {
+        clearUserLocalStorage();
+        resetStudentProfileInMemory();
+        customSearchTags = [];
+        renderCustomTags();
+      } else {
+        loadStudentProfile();
+      }
+
       syncProfileFieldsToUI();
       renderElevatorPitch();
       renderBookmarks();
@@ -2313,7 +2346,7 @@
         }
 
         if (event === 'SIGNED_OUT') {
-          await handleSignedOutState();
+          await handleSignedOutState({ clearStoredUserData: true });
           return;
         }
 
