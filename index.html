@@ -2656,18 +2656,30 @@
       renderHighlightTags();
     }
 
-    function readProfileFromField(field) {
+    function readProfileFromField(field, normalize) {
       var key = field.getAttribute('data-profile-field');
       if (!key || key === 'highlights') return;
-      studentProfile[key] = trimField(field.value);
+      var value = field.value;
+      studentProfile[key] = normalize ? trimField(value) : value;
     }
 
-    function onProfileFieldChange(field) {
-      readProfileFromField(field);
-      if (field.getAttribute('data-profile-field') === 'college') {
-        toggleCollegeOtherVisibility();
-        syncSchoolCheckboxesFromProfile();
-      }
+    function onProfileCollegeFieldSideEffects(field) {
+      if (field.getAttribute('data-profile-field') !== 'college') return;
+      toggleCollegeOtherVisibility();
+      syncSchoolCheckboxesFromProfile();
+    }
+
+    function onProfileFieldInput(field) {
+      readProfileFromField(field, false);
+      onProfileCollegeFieldSideEffects(field);
+      saveStudentProfile();
+      refreshPersonalizedTemplates();
+      updateProfileStatusPill();
+    }
+
+    function onProfileFieldCommit(field) {
+      readProfileFromField(field, true);
+      onProfileCollegeFieldSideEffects(field);
       saveStudentProfile();
       syncProfileFieldsToUI();
       refreshPersonalizedTemplates();
@@ -2975,10 +2987,14 @@
 
       document.querySelectorAll('.profile-sync-field').forEach(function (field) {
         field.addEventListener('input', function () {
-          onProfileFieldChange(field);
+          onProfileFieldInput(field);
         });
         field.addEventListener('change', function () {
-          onProfileFieldChange(field);
+          onProfileFieldCommit(field);
+        });
+        field.addEventListener('blur', function () {
+          if (field.tagName === 'SELECT') return;
+          onProfileFieldCommit(field);
         });
       });
 
