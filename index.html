@@ -490,13 +490,13 @@
       <form id="preferences-form" class="space-y-6">
         <fieldset>
           <legend class="mb-1 block text-sm font-medium text-slate-700">Impact Pillars</legend>
-          <p class="mb-3 text-xs text-slate-500">Select one or more fields. Optional sub-tags appear under each selected pillar.</p>
+          <p class="mb-3 text-xs text-slate-500">Optional if you add a custom keyword. Select one or more fields; sub-tags appear under each selected pillar.</p>
           <div id="pillar-grid" class="grid gap-3 sm:grid-cols-2"></div>
         </fieldset>
 
         <fieldset>
           <legend class="mb-1 block text-sm font-medium text-slate-700">Custom Keywords</legend>
-          <p class="mb-3 text-xs text-slate-500">Add your own tags to refine the LinkedIn search (e.g., transfer student, nonprofit, GIS).</p>
+          <p class="mb-3 text-xs text-slate-500">Add your own tags (e.g., Product Manager, transfer student, GIS). You can search with custom keywords and school only.</p>
           <div class="flex gap-2">
             <input
               type="text"
@@ -1564,8 +1564,7 @@
     }
 
     function formatSelectionLabel(pillars, subTags) {
-      if (pillars.length === 0) return '';
-
+      var customTags = getCustomSearchTags();
       var pillarLabels = pillars.map(function (id) {
         return PILLARS[id].label;
       });
@@ -1573,14 +1572,16 @@
       var subTagLabels = subTags.map(function (key) {
         var parts = key.split(':');
         return PILLARS[parts[0]].subTags[parts[1]].label;
-      });
+      }).filter(Boolean);
+
+      if (pillarLabels.length === 0) {
+        return customTags.join(', ');
+      }
 
       var label = pillarLabels.join(', ');
       if (subTagLabels.length > 0) {
         label += ' (' + subTagLabels.join(', ') + ')';
       }
-
-      var customTags = getCustomSearchTags();
       if (customTags.length > 0) {
         label += ' + ' + customTags.join(', ');
       }
@@ -1634,10 +1635,16 @@
       return buildLinkedInSearchUrlFromKeywords(keywordParts.join(' '));
     }
 
-    function buildBroaderLinkedInSearchUrl(primaryPillarId, schools) {
-      var pillar = PILLARS[primaryPillarId];
-      if (!pillar || schools.length === 0) return '';
-      var keywordParts = [pillar.keywords[0], buildSchoolSearchClause(schools)];
+    function buildBroaderLinkedInSearchUrl(primaryPillarId, schools, customTags) {
+      if (schools.length === 0) return '';
+      var primaryTerm = '';
+      if (primaryPillarId && PILLARS[primaryPillarId]) {
+        primaryTerm = PILLARS[primaryPillarId].keywords[0];
+      } else if (customTags && customTags.length) {
+        primaryTerm = customTags[0];
+      }
+      if (!primaryTerm) return '';
+      var keywordParts = [primaryTerm, buildSchoolSearchClause(schools)];
       return buildLinkedInSearchUrlFromKeywords(keywordParts.join(' '));
     }
 
@@ -1645,8 +1652,15 @@
       return pillars.length ? pillars[0] : '';
     }
 
-    function getCombinedProfile(pillars) {
+    function getCombinedProfile(pillars, customTags) {
+      customTags = customTags || getCustomSearchTags();
       if (pillars.length === 0) {
+        if (customTags.length) {
+          return {
+            titles: customTags.slice(0, 6),
+            description: 'People whose profiles mention ' + customTags.join(', ') + ' and are connected to your school community.'
+          };
+        }
         return {
           titles: ['STEM Professional'],
           description: 'A professional working in non-corporate STEM fields who can share career insights and advice for community college students.'
@@ -1667,8 +1681,8 @@
       };
     }
 
-    function updateRoleProfile(pillars) {
-      var profile = getCombinedProfile(pillars);
+    function updateRoleProfile(pillars, customTags) {
+      var profile = getCombinedProfile(pillars, customTags);
       document.getElementById('role-profile-titles').textContent = 'Look for titles like: ' + profile.titles.join(', ');
       document.getElementById('role-profile-description').textContent = profile.description;
     }
@@ -3729,12 +3743,15 @@
       e.preventDefault();
       formError.classList.add('hidden');
 
+      addCustomTagFromInput();
+
       var pillars = getSelectedPillars();
       var subTags = getSelectedSubTags();
       var schools = getSelectedSchools();
+      var customTags = getCustomSearchTags();
 
-      if (pillars.length === 0) {
-        formError.textContent = 'Please select at least one impact pillar.';
+      if (pillars.length === 0 && customTags.length === 0) {
+        formError.textContent = 'Select at least one impact pillar or add a custom keyword.';
         formError.classList.remove('hidden');
         return;
       }
@@ -3748,13 +3765,16 @@
       var searchLabel = formatSelectionLabel(pillars, subTags);
       var url = buildLinkedInSearchUrl(pillars, subTags, schools);
       var primaryPillarId = getPrimaryPillarId(pillars);
-      var broaderUrl = buildBroaderLinkedInSearchUrl(primaryPillarId, schools);
+      var broaderUrl = buildBroaderLinkedInSearchUrl(primaryPillarId, schools, customTags);
       var schoolLabel = formatSchoolList(schools);
+      var broaderTerm = (primaryPillarId && PILLARS[primaryPillarId])
+        ? PILLARS[primaryPillarId].keywords[0]
+        : (customTags[0] || 'your keyword');
 
       currentSearchContext = {
         pillars: pillars.slice(),
         subTags: subTags.slice(),
-        customTags: getCustomSearchTags().slice(),
+        customTags: customTags.slice(),
         searchLabel: searchLabel,
         primaryPillarId: primaryPillarId,
         schools: schools.slice()
@@ -3764,9 +3784,9 @@
       document.getElementById('result-schools').textContent = schoolLabel;
       document.getElementById('linkedin-link').href = url;
       document.getElementById('linkedin-link-broader').href = broaderUrl;
-      document.getElementById('broader-search-label').textContent = PILLARS[primaryPillarId].keywords[0];
+      document.getElementById('broader-search-label').textContent = broaderTerm;
 
-      updateRoleProfile(pillars);
+      updateRoleProfile(pillars, customTags);
 
       searchPlaceholder.classList.add('hidden');
       searchResult.classList.remove('hidden');
