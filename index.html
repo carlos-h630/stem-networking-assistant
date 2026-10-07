@@ -481,7 +481,7 @@
     <div id="tab-search" class="tab-panel hidden space-y-8">
 
     <!-- Step 1 -->
-    <section class="overflow-visible rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step1-heading">
+    <section id="search-step-1" class="overflow-visible rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step1-heading">
       <div class="relative z-10 mb-6 flex items-center gap-3 bg-white">
         <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">1</span>
         <h2 id="step1-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Preferences, Impact Pillars &amp; Custom Tags</h2>
@@ -636,7 +636,7 @@
     </section>
 
     <!-- Step 3 -->
-    <section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step3-heading">
+    <section id="stash-profile-section" class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="step3-heading">
       <div class="mb-2 flex items-center gap-3">
         <span class="step-badge flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">3</span>
         <h2 id="step3-heading" class="text-lg font-semibold text-stem-900 sm:text-xl">Stash Profile &amp; Connection Hook</h2>
@@ -1243,6 +1243,14 @@
       radar: document.getElementById('tab-radar')
     };
 
+    function smoothScrollTo(target) {
+      var el = typeof target === 'string' ? document.getElementById(target) : target;
+      if (!el) return;
+      window.requestAnimationFrame(function () {
+        el.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
     var BOOKMARKS_STORAGE_KEY = 'stemNetworkingBookmarks';
     var STUDENT_PROFILE_STORAGE_KEY = 'stemStudentProfile';
     var CUSTOM_TAGS_STORAGE_KEY = 'stemCustomSearchTags';
@@ -1678,6 +1686,13 @@
       params.set('keywords', keywordString);
       params.set('origin', 'FACETED_SEARCH');
       return 'https://www.linkedin.com/search/results/people/?' + params.toString();
+    }
+
+    function applyExternalSearchLink(anchor, url) {
+      if (!anchor) return;
+      anchor.href = url || '#';
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
     }
 
     function buildLinkedInSearchUrl(pillars, subTags, schools) {
@@ -3854,8 +3869,8 @@
 
       document.getElementById('result-path').textContent = searchLabel;
       document.getElementById('result-schools').textContent = schoolLabel;
-      document.getElementById('linkedin-link').href = url;
-      document.getElementById('linkedin-link-broader').href = broaderUrl;
+      applyExternalSearchLink(document.getElementById('linkedin-link'), url);
+      applyExternalSearchLink(document.getElementById('linkedin-link-broader'), broaderUrl);
       document.getElementById('broader-search-label').textContent = broaderTerm;
 
       updateRoleProfile(pillars, customTags);
@@ -3866,10 +3881,7 @@
       revealStashStep();
       renderElevatorPitch();
 
-      var step2 = document.getElementById('search-step-2');
-      if (step2) {
-        step2.scrollIntoView({ behavior: 'smooth' });
-      }
+      smoothScrollTo('search-step-2');
     });
 
     bookmarkForm.addEventListener('submit', async function (e) {
@@ -3955,11 +3967,6 @@
 
       bookmarkForm.reset();
       showToast('Profile stashed. Your tailored notes are ready in Step 4.');
-
-      var step4 = document.getElementById('step4-section');
-      if (step4) {
-        step4.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
     });
 
     bookmarksList.addEventListener('click', async function (e) {
