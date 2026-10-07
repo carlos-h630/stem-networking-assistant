@@ -526,6 +526,20 @@
               <input type="checkbox" name="school" value="De Anza College" class="h-4 w-4 rounded border-slate-300 text-stem-600 focus:ring-stem-500" />
               <span class="text-sm font-medium text-slate-700">De Anza College</span>
             </label>
+            <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 px-4 py-3 transition hover:border-stem-300 hover:bg-stem-50/50 has-[:checked]:border-stem-500 has-[:checked]:bg-stem-50">
+              <input type="checkbox" name="school" id="school-other-checkbox" value="Other" class="h-4 w-4 rounded border-slate-300 text-stem-600 focus:ring-stem-500" />
+              <span class="text-sm font-medium text-slate-700">Other</span>
+            </label>
+            <div id="school-other-wrap" class="hidden rounded-lg border border-slate-200 bg-slate-50/70 px-4 py-3">
+              <label for="school-other-input" class="mb-1.5 block text-sm font-medium text-slate-700">School name</label>
+              <input
+                type="text"
+                id="school-other-input"
+                autocomplete="organization"
+                placeholder="e.g. UC Berkeley"
+                class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-stem-500 focus:outline-none focus:ring-2 focus:ring-stem-500/20"
+              />
+            </div>
           </div>
         </fieldset>
 
@@ -1343,10 +1357,36 @@
     var selectedPillars = new Set();
     var selectedSubTags = new Set();
 
+    function isOtherSchoolChecked() {
+      var el = document.getElementById('school-other-checkbox');
+      return !!(el && el.checked);
+    }
+
+    function getOtherSchoolName() {
+      var input = document.getElementById('school-other-input');
+      return input ? trimField(input.value) : '';
+    }
+
+    function toggleOtherSchoolInput(options) {
+      options = options || {};
+      var wrap = document.getElementById('school-other-wrap');
+      var input = document.getElementById('school-other-input');
+      var checked = isOtherSchoolChecked();
+      if (wrap) wrap.classList.toggle('hidden', !checked);
+      if (checked && options.focus && input) input.focus();
+    }
+
     function getSelectedSchools() {
-      return Array.from(document.querySelectorAll('input[name="school"]:checked')).map(function (el) {
-        return el.value;
+      var schools = [];
+      document.querySelectorAll('input[name="school"]:checked').forEach(function (el) {
+        if (el.value === 'Other') {
+          var customSchool = getOtherSchoolName();
+          if (customSchool) schools.push(customSchool);
+          return;
+        }
+        schools.push(el.value);
       });
+      return schools;
     }
 
     function renderPillarGrid() {
@@ -1436,6 +1476,11 @@
         if (!card) return;
         togglePillar(card.getAttribute('data-pillar'));
       });
+
+      document.getElementById('school-other-checkbox').addEventListener('change', function () {
+        toggleOtherSchoolInput({ focus: true });
+      });
+      toggleOtherSchoolInput();
 
       document.getElementById('custom-tag-add-btn').addEventListener('click', addCustomTagFromInput);
       document.getElementById('custom-tag-input').addEventListener('keydown', function (e) {
@@ -1610,12 +1655,20 @@
       'De Anza College': ['De Anza College', 'De Anza']
     };
 
+    function schoolSearchTermsFor(school) {
+      if (SCHOOL_SEARCH_TERMS[school]) return SCHOOL_SEARCH_TERMS[school].slice();
+      var cleaned = String(school || '').replace(/"/g, '').trim();
+      if (!cleaned) return [];
+      if (/\s/.test(cleaned)) return ['"' + cleaned + '"'];
+      return [cleaned];
+    }
+
     function buildSchoolSearchClause(schools) {
       var terms = [];
       schools.forEach(function (school) {
-        var aliases = SCHOOL_SEARCH_TERMS[school] || [school];
-        terms = terms.concat(aliases);
+        terms = terms.concat(schoolSearchTermsFor(school));
       });
+      if (terms.length === 0) return '';
       if (terms.length === 1) return 'school:' + terms[0];
       return 'school:(' + terms.join(' OR ') + ')';
     }
@@ -1631,7 +1684,8 @@
       var keywordParts = [];
       var pillarKeywords = buildSearchKeywords(pillars, subTags);
       if (pillarKeywords) keywordParts.push(pillarKeywords);
-      keywordParts.push(buildSchoolSearchClause(schools));
+      var schoolClause = buildSchoolSearchClause(schools);
+      if (schoolClause) keywordParts.push(schoolClause);
       return buildLinkedInSearchUrlFromKeywords(keywordParts.join(' '));
     }
 
@@ -2810,10 +2864,21 @@
 
     function syncSchoolCheckboxesFromProfile() {
       var college = studentProfile.college;
-      if (college !== 'Foothill College' && college !== 'De Anza College') return;
-      document.querySelectorAll('input[name="school"]').forEach(function (checkbox) {
-        checkbox.checked = checkbox.value === college;
-      });
+      var otherInput = document.getElementById('school-other-input');
+      if (college === 'Foothill College' || college === 'De Anza College') {
+        document.querySelectorAll('input[name="school"]').forEach(function (checkbox) {
+          checkbox.checked = checkbox.value === college;
+        });
+        if (otherInput) otherInput.value = '';
+        toggleOtherSchoolInput();
+        return;
+      }
+      if (college === 'Other') {
+        var otherCheckbox = document.getElementById('school-other-checkbox');
+        if (otherCheckbox) otherCheckbox.checked = true;
+        if (otherInput) otherInput.value = studentProfile.collegeOther || '';
+        toggleOtherSchoolInput();
+      }
     }
 
     function renderHighlightTags() {
@@ -3753,6 +3818,13 @@
       if (pillars.length === 0 && customTags.length === 0) {
         formError.textContent = 'Select at least one impact pillar or add a custom keyword.';
         formError.classList.remove('hidden');
+        return;
+      }
+
+      if (isOtherSchoolChecked() && !getOtherSchoolName()) {
+        formError.textContent = 'Enter a school name for Other, or uncheck Other.';
+        formError.classList.remove('hidden');
+        document.getElementById('school-other-input').focus();
         return;
       }
 
