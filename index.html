@@ -1046,7 +1046,11 @@
                 <div class="min-w-0">
                   <p id="resume-file-name" class="truncate text-sm font-semibold text-stem-900"></p>
                   <p id="resume-file-size" class="mt-0.5 text-xs text-slate-500"></p>
-                  <span class="mt-2 inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Uploaded ✓</span>
+                  <div class="mt-2 flex flex-wrap items-center gap-1.5">
+                    <span class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Uploaded ✓</span>
+                    <span id="resume-parsed-badge" class="hidden inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-800">Parsed ✓</span>
+                  </div>
+                  <p id="resume-parsed-status" class="mt-2 hidden text-xs leading-relaxed text-slate-600"></p>
                 </div>
               </div>
               <button
@@ -1724,7 +1728,48 @@
       };
     }
 
+    function getResumeFileMeta() {
+      if (studentProfile.resumeFile && studentProfile.resumeFile.name) {
+        return {
+          name: studentProfile.resumeFile.name,
+          size: Number(studentProfile.resumeFile.size) || 0
+        };
+      }
+      return null;
+    }
+
+    function packedResumePayload() {
+      return {
+        items: Array.isArray(studentProfile.highlights) ? studentProfile.highlights.slice() : [],
+        text: studentProfile.resumeText || '',
+        source: studentProfile.resumeSource || null,
+        file: getResumeFileMeta()
+      };
+    }
+
+    function parseResumeHighlightsPayload(value) {
+      var result = { items: [], text: '', source: null, file: null };
+      if (Array.isArray(value)) {
+        result.items = value.slice();
+        return result;
+      }
+      if (value && typeof value === 'object') {
+        if (Array.isArray(value.items)) result.items = value.items.slice();
+        else if (Array.isArray(value.highlights)) result.items = value.highlights.slice();
+        result.text = value.text || value.resume_text || '';
+        result.source = value.source || value.resume_source || null;
+        if (value.file && value.file.name) {
+          result.file = { name: value.file.name, size: Number(value.file.size) || 0 };
+        } else if (value.file_name) {
+          result.file = { name: value.file_name, size: Number(value.file_size) || 0 };
+        }
+      }
+      return result;
+    }
+
     function profileRowFromStudentProfile(userId) {
+      var packed = packedResumePayload();
+      var file = packed.file;
       return {
         id: userId,
         full_name: trimField(studentProfile.fullName),
@@ -1732,18 +1777,40 @@
         college_name: trimField(studentProfile.collegeOther),
         major: trimField(studentProfile.major),
         passion: trimField(studentProfile.passion),
-        resume_highlights: studentProfile.highlights.slice()
+        resume_highlights: packed,
+        resume_text: packed.text,
+        resume_source: packed.source,
+        resume_file_name: file ? file.name : '',
+        resume_file_size: file ? file.size : 0
       };
     }
 
     function applyProfileRowToStudentProfile(row) {
       if (!row) return;
+      var packed = parseResumeHighlightsPayload(row.resume_highlights);
       studentProfile.fullName = row.full_name || '';
       studentProfile.college = row.college || '';
       studentProfile.collegeOther = row.college_name || '';
       studentProfile.major = row.major || '';
       studentProfile.passion = row.passion || '';
-      studentProfile.highlights = Array.isArray(row.resume_highlights) ? row.resume_highlights : [];
+      studentProfile.highlights = packed.items;
+      studentProfile.resumeText = row.resume_text || packed.text || '';
+      studentProfile.resumeSource = row.resume_source || packed.source || null;
+      if (row.resume_file_name) {
+        studentProfile.resumeFile = {
+          name: row.resume_file_name,
+          size: Number(row.resume_file_size) || 0
+        };
+      } else if (packed.file && packed.file.name) {
+        studentProfile.resumeFile = packed.file;
+      } else {
+        studentProfile.resumeFile = null;
+      }
+      if (!studentProfile.resumeSource && studentProfile.resumeFile) {
+        studentProfile.resumeSource = 'file';
+      } else if (!studentProfile.resumeSource && studentProfile.resumeText) {
+        studentProfile.resumeSource = 'paste';
+      }
     }
 
     async function fetchProfileFromSupabase() {
@@ -1758,22 +1825,54 @@
       }
       if (result.data) {
         applyProfileRowToStudentProfile(result.data);
-      } else if (isProfileComplete() || studentProfile.highlights.length) {
+      } else if (isProfileComplete() || studentProfile.highlights.length || studentProfile.resumeText) {
         await upsertProfileToSupabase();
       }
       syncProfileFieldsToUI();
       renderElevatorPitch();
+      updateAuthUI();
+    }
+
+    function isMissingProfileColumnError(error) {
+      if (!error) return false;
+      var message = String(error.message || '').toLowerCase();
+      return error.code === 'PGRST204' || message.indexOf('column') !== -1 || message.indexOf('schema cache') !== -1;
     }
 
     async function upsertProfileToSupabase() {
       var userId = getAuthUserId();
-      if (!userId) return;
+      if (!userId) return false;
 
-      var result = await supabase.from('profiles').upsert(profileRowFromStudentProfile(userId));
+      var row = profileRowFromStudentProfile(userId);
+      var coreRow = {
+        id: row.id,
+        full_name: row.full_name,
+        college: row.college,
+        college_name: row.college_name,
+        major: row.major,
+        passion: row.passion
+      };
+      var result = await supabase.from('profiles').upsert(row, { onConflict: 'id' });
+      if (result.error && isMissingProfileColumnError(result.error)) {
+        result = await supabase.from('profiles').upsert(Object.assign({}, coreRow, {
+          resume_highlights: row.resume_highlights
+        }), { onConflict: 'id' });
+      }
+      if (result.error) {
+        result = await supabase.from('profiles').upsert(Object.assign({}, coreRow, {
+          resume_highlights: Array.isArray(row.resume_highlights.items) ? row.resume_highlights.items : [],
+          resume_text: row.resume_text,
+          resume_source: row.resume_source,
+          resume_file_name: row.resume_file_name,
+          resume_file_size: row.resume_file_size
+        }), { onConflict: 'id' });
+      }
       if (result.error) {
         console.error('Profile save failed:', result.error.message);
         showToast('Could not save profile to the cloud.');
+        return false;
       }
+      return true;
     }
 
     async function fetchSavedAlumniFromSupabase() {
@@ -2234,13 +2333,13 @@
       }
 
       authSession = session;
-      updateAuthUI();
 
       authDataLoading = true;
       setAuthSubmitLoading(true);
       try {
         await fetchProfileFromSupabase();
         await fetchSavedAlumniFromSupabase();
+        updateAuthUI();
         if (options.notify) {
           showToast('Signed in. Your profile and saved mentors are synced.');
         }
@@ -2248,6 +2347,7 @@
         authDataLoading = false;
         setAuthSubmitLoading(false);
         closeAuthModal();
+        updateAuthUI();
       }
     }
 
@@ -2391,9 +2491,9 @@
       }
     }
 
-    function saveStudentProfile() {
+    async function saveStudentProfile() {
       if (isLoggedIn()) {
-        upsertProfileToSupabase();
+        await upsertProfileToSupabase();
         updateAuthUI();
         return;
       }
@@ -2646,8 +2746,17 @@
       });
 
       var pasteField = document.getElementById('resume-paste');
+      var pasteDetails = document.getElementById('resume-paste-details');
+      var isFileResume = studentProfile.resumeSource === 'file';
       if (pasteField) {
-        pasteField.value = studentProfile.resumeSource === 'paste' ? (studentProfile.resumeText || '') : '';
+        pasteField.value = isFileResume ? '' : (studentProfile.resumeText || '');
+      }
+      if (pasteDetails) {
+        if (!isFileResume && studentProfile.resumeSource === 'paste' && studentProfile.resumeText) {
+          pasteDetails.setAttribute('open', '');
+        } else {
+          pasteDetails.removeAttribute('open');
+        }
       }
 
       toggleCollegeOtherVisibility();
@@ -2839,11 +2948,20 @@
       return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     }
 
+    function clearVisibleResumePaste() {
+      var pasteField = document.getElementById('resume-paste');
+      var pasteDetails = document.getElementById('resume-paste-details');
+      if (pasteField) pasteField.value = '';
+      if (pasteDetails) pasteDetails.removeAttribute('open');
+    }
+
     function renderResumeUploadState() {
       var dropzone = document.getElementById('resume-dropzone');
       var fileCard = document.getElementById('resume-file-card');
       var fileNameEl = document.getElementById('resume-file-name');
       var fileSizeEl = document.getElementById('resume-file-size');
+      var parsedBadge = document.getElementById('resume-parsed-badge');
+      var parsedStatus = document.getElementById('resume-parsed-status');
       if (!dropzone || !fileCard) return;
 
       if (studentProfile.resumeFile && studentProfile.resumeFile.name) {
@@ -2851,9 +2969,25 @@
         fileCard.classList.remove('hidden');
         if (fileNameEl) fileNameEl.textContent = studentProfile.resumeFile.name;
         if (fileSizeEl) fileSizeEl.textContent = formatFileSize(studentProfile.resumeFile.size);
+        var parsed = !!(studentProfile.resumeText || (studentProfile.highlights && studentProfile.highlights.length));
+        if (parsedBadge) parsedBadge.classList.toggle('hidden', !parsed);
+        if (parsedStatus) {
+          parsedStatus.classList.toggle('hidden', !parsed);
+          if (parsed) {
+            var highlightCount = (studentProfile.highlights || []).length;
+            parsedStatus.textContent = highlightCount
+              ? 'Resume parsed in the background. ' + highlightCount + ' highlight' + (highlightCount === 1 ? '' : 's') + ' saved to your profile.'
+              : 'Resume parsed in the background and saved to your profile.';
+          }
+        }
       } else {
         dropzone.classList.remove('hidden');
         fileCard.classList.add('hidden');
+        if (parsedBadge) parsedBadge.classList.add('hidden');
+        if (parsedStatus) {
+          parsedStatus.classList.add('hidden');
+          parsedStatus.textContent = '';
+        }
       }
     }
 
@@ -2861,7 +2995,9 @@
       return extractTextFromFile(file).then(function (text) {
         studentProfile.resumeFile = { name: file.name, size: file.size };
         applyHighlightsFromText(text, { fromFile: true, silent: true });
+        clearVisibleResumePaste();
         renderResumeUploadState();
+        showToast('Resume parsed and saved.');
       });
     }
 
@@ -2965,13 +3101,29 @@
 
     function readProfileFromUI() {
       document.querySelectorAll('.profile-sync-field').forEach(function (field) {
-        readProfileFromField(field);
+        readProfileFromField(field, true);
       });
     }
 
-    function saveProfileAndContinueToSearch() {
+    function readResumeFieldsFromUI() {
+      var pasteField = document.getElementById('resume-paste');
+      if (!pasteField) return;
+      var text = pasteField.value;
+      if (studentProfile.resumeSource === 'file') {
+        return;
+      }
+      if (trimField(text)) {
+        studentProfile.resumeText = text;
+        if (!studentProfile.resumeSource) studentProfile.resumeSource = 'paste';
+      } else {
+        studentProfile.resumeText = '';
+      }
+    }
+
+    async function saveProfileAndContinueToSearch() {
       readProfileFromUI();
-      saveStudentProfile();
+      readResumeFieldsFromUI();
+      await saveStudentProfile();
       updateProfileStatusPill();
       refreshPersonalizedTemplates();
       closeProfilePanel();
